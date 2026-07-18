@@ -23,6 +23,9 @@ indicators, pattern-marker rendering, settings, theming, layout save/load. Expli
 watchlist, AI features, news/calendar/screener/heatmap, order execution, proprietary third-party
 indicators.
 
+* **Layout & Resizing Updates:** Exposed `width` and `height` properties in the `ChartView` widget to support custom adjustable widget sizing, and fixed layout clipping/scrolling bugs on mobile toolbar and dropdown selections.
+* **Touch & Reload Bug Fixes:** Fixed Settings and fx (Indicators) buttons touch/click issues on mobile by adding `pointer-events: none` to the nested SVG icons, and resolved the timeframe/iframe reload bug on web by caching the `HTMLIFrameElement` in the widget state.
+
 ## Starting Point (already existed before this planning pass)
 Uploaded working code: `chart.html` (Lightweight Charts + basic drawing tools, mock BTC data,
 self-testable standalone), `main.dart` (demo screen, mock bar generator, live tick simulation via

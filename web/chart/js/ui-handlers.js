@@ -13,8 +13,27 @@ function setupDropdown(btnId, menuId) {
     document.querySelectorAll('.dropdown, .tools-menu').forEach(el => {
       if (el !== menu) el.classList.remove('open');
     });
-    menu.classList.toggle('open');
+    const isOpen = menu.classList.toggle('open');
+    if (isOpen) {
+      positionDropdown(btn, menu);
+    }
   });
+}
+
+function positionDropdown(btn, menu) {
+  const rect = btn.getBoundingClientRect();
+  menu.style.position = 'fixed';
+  menu.style.top = rect.bottom + 'px';
+  
+  const viewportWidth = window.innerWidth;
+  const menuWidth = menu.offsetWidth || 160;
+  let left = rect.left;
+  if (left + menuWidth > viewportWidth - 8) {
+    left = viewportWidth - menuWidth - 8;
+  }
+  if (left < 8) left = 8;
+  
+  menu.style.left = left + 'px';
 }
 
 runOnInit(() => {
@@ -28,6 +47,16 @@ runOnInit(() => {
       el.classList.remove('open');
     });
   });
+
+  // Close dropdowns when scrolling the topbar
+  const topbar = document.getElementById('topbar');
+  if (topbar) {
+    topbar.addEventListener('scroll', () => {
+      document.querySelectorAll('.dropdown, .tools-menu').forEach(el => {
+        el.classList.remove('open');
+      });
+    });
+  }
 
   // Wire quick timeframe button selectors
   document.querySelectorAll('#topbar > .tb-btn[data-tf]').forEach(btn => {

@@ -24,6 +24,8 @@ class PlatformChartView extends ChartView {
     super.key,
     required super.onCreated,
     super.onEvent,
+    super.width,
+    super.height,
   }) : super.base();
 
   @override
@@ -62,7 +64,11 @@ class _PlatformChartViewState extends State<PlatformChartView> {
 
   @override
   Widget build(BuildContext context) {
-    return WebViewWidget(controller: _controller);
+    return SizedBox(
+      width: widget.width,
+      height: widget.height,
+      child: WebViewWidget(controller: _controller),
+    );
   }
 }
 

@@ -12,6 +12,8 @@ class PlatformChartView extends ChartView {
     super.key,
     required super.onCreated,
     super.onEvent,
+    super.width,
+    super.height,
   }) : super.base();
 
   @override

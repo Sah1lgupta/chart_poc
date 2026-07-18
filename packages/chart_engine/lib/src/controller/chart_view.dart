@@ -17,6 +17,8 @@ abstract class ChartView extends StatefulWidget {
     super.key,
     required this.onCreated,
     this.onEvent,
+    this.width,
+    this.height,
   });
 
   /// Called once the underlying web view / DOM element is ready.
@@ -26,9 +28,23 @@ abstract class ChartView extends StatefulWidget {
   /// changed, etc.) — wired to `window.onChartEvent` in chart.html.
   final ChartEventCallback? onEvent;
 
+  /// Optional width constraint for the chart widget.
+  final double? width;
+
+  /// Optional height constraint for the chart widget.
+  final double? height;
+
   factory ChartView({
     Key? key,
     required void Function(ChartController controller) onCreated,
     ChartEventCallback? onEvent,
-  }) => PlatformChartView(key: key, onCreated: onCreated, onEvent: onEvent);
+    double? width,
+    double? height,
+  }) => PlatformChartView(
+        key: key,
+        onCreated: onCreated,
+        onEvent: onEvent,
+        width: width,
+        height: height,
+      );
 }

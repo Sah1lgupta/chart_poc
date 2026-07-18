@@ -30,6 +30,8 @@ class PlatformChartView extends ChartView {
     super.key,
     required super.onCreated,
     super.onEvent,
+    super.width,
+    super.height,
   }) : super.base();
 
   @override
@@ -38,46 +40,51 @@ class PlatformChartView extends ChartView {
 
 class _PlatformChartViewState extends State<PlatformChartView> {
   late final String _viewType;
+  late final web.HTMLIFrameElement _iframe;
 
   @override
   void initState() {
     super.initState();
     _viewType = 'chart-view-${identityHashCode(this)}';
 
+    _iframe = web.HTMLIFrameElement()
+      ..src = 'chart/chart.html'
+      ..style.border = 'none'
+      ..style.width = '100%'
+      ..style.height = '100%';
+
+    _iframe.onLoad.listen((_) {
+      final iframeWindow = _iframe.contentWindow;
+      if (iframeWindow == null) return;
+
+      // Expose window.onChartEvent(name, payload) inside the iframe so
+      // chart.html's emitEvent() can call back out to Dart.
+      iframeWindow.setProperty(
+        'onChartEvent'.toJS,
+        ((JSString event, JSAny? payload) {
+          final decoded = payload?.dartify();
+          final map = decoded is Map
+              ? Map<String, dynamic>.from(decoded)
+              : <String, dynamic>{};
+          widget.onEvent?.call(event.toDart, map);
+        }).toJS,
+      );
+
+      widget.onCreated(_WebChartController(iframeWindow));
+    });
+
     ui_web.platformViewRegistry.registerViewFactory(_viewType, (int viewId) {
-      final iframe = web.HTMLIFrameElement()
-        ..src = 'chart/chart.html'
-        ..style.border = 'none'
-        ..style.width = '100%'
-        ..style.height = '100%';
-
-      iframe.onLoad.listen((_) {
-        final iframeWindow = iframe.contentWindow;
-        if (iframeWindow == null) return;
-
-        // Expose window.onChartEvent(name, payload) inside the iframe so
-        // chart.html's emitEvent() can call back out to Dart.
-        iframeWindow.setProperty(
-          'onChartEvent'.toJS,
-          ((JSString event, JSAny? payload) {
-            final decoded = payload?.dartify();
-            final map = decoded is Map
-                ? Map<String, dynamic>.from(decoded)
-                : <String, dynamic>{};
-            widget.onEvent?.call(event.toDart, map);
-          }).toJS,
-        );
-
-        widget.onCreated(_WebChartController(iframeWindow));
-      });
-
-      return iframe;
+      return _iframe;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return HtmlElementView(viewType: _viewType);
+    return SizedBox(
+      width: widget.width,
+      height: widget.height,
+      child: HtmlElementView(viewType: _viewType),
+    );
   }
 }
 
