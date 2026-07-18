@@ -57,7 +57,7 @@ class _PlatformChartViewState extends State<PlatformChartView> {
         ),
       )
       ..loadFlutterAsset(
-          'packages/chart_engine/assets/chart/chart.html');
+          'packages/chart_engine/assets/chart/chart_mobile.html');
   }
 
   @override

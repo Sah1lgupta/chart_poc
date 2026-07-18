@@ -15,6 +15,7 @@ dependencies:
 flutter:
   assets:
     - assets/chart/chart.html
+    - assets/chart/chart_mobile.html
     - assets/chart/lightweight-charts.standalone.production.js
     - assets/chart/js/core/
     - assets/chart/js/drawings/
