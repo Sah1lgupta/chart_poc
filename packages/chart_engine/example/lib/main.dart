@@ -39,19 +39,18 @@ class _ChartScreenState extends State<ChartScreen> {
   ChartController? _controller;
   double _lastClose = 64000;
   final _rand = Random();
-  int _currentIntervalSeconds = 60;
 
   // Called once the underlying web view / DOM element is ready.
   void _onChartCreated(ChartController controller) {
     _controller = controller;
-    _controller!.setData(_generateMockBars(200, intervalSeconds: _currentIntervalSeconds));
+    _controller!.setData(_generateMockBars(200));
   }
 
   // Called for events coming FROM the chart JS (drawing added, timeframe
   // changed, etc.) — see chart.html's emitEvent().
   void _onChartEvent(String event, Map<String, dynamic> payload) {
     debugPrint('Chart event: $event -> $payload');
-    if (event == 'jsError' && mounted) {
+    if (event == ChartEvents.jsError && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
@@ -60,38 +59,19 @@ class _ChartScreenState extends State<ChartScreen> {
         ),
       );
     }
-    if (event == 'timeframeChanged' && mounted) {
+    if (event == ChartEvents.timeframeChanged && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Timeframe changed to ${payload['tf']}')),
       );
-      final tf = payload['tf'] as String;
-      int interval = 60;
-      if (tf == '2') {
-        interval = 2 * 60;
-      } else if (tf == '3') {
-        interval = 3 * 60;
-      } else if (tf == '5') {
-        interval = 5 * 60;
-      } else if (tf == '10') {
-        interval = 10 * 60;
-      } else if (tf == '15') {
-        interval = 15 * 60;
-      } else if (tf == '60' || tf == '1H') {
-        interval = 60 * 60;
-      } else if (tf == 'D') {
-        interval = 24 * 60 * 60;
-      }
-      _currentIntervalSeconds = interval;
-      _controller?.setData(_generateMockBars(200, intervalSeconds: _currentIntervalSeconds));
     }
   }
 
-  List<ChartBar> _generateMockBars(int count, {int intervalSeconds = 60}) {
+  List<ChartBar> _generateMockBars(int count) {
     final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     final bars = <ChartBar>[];
     var price = _lastClose;
     for (var i = count; i >= 0; i--) {
-      final time = now - i * intervalSeconds;
+      final time = now - i * 60;
       final open = price;
       final change = (_rand.nextDouble() - 0.5) * 40;
       final close = open + change;
@@ -115,7 +95,7 @@ class _ChartScreenState extends State<ChartScreen> {
   // your WebSocket listener (batched every 100-250ms, not per raw tick).
   void _simulateTick() {
     final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    final currentMinute = now - (now % _currentIntervalSeconds);
+    final currentMinute = now - (now % 60);
     final change = (_rand.nextDouble() - 0.5) * 40;
     final close = _lastClose + change;
     final bar = ChartBar(

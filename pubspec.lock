@@ -25,6 +25,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
+  chart_engine:
+    dependency: "direct main"
+    description:
+      path: "packages/chart_engine"
+      relative: true
+    source: path
+    version: "0.1.0"
   clock:
     dependency: transitive
     description:
