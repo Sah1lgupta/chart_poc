@@ -281,6 +281,29 @@
 
     /* ========== FULLSCREEN ========== */
     #root.fullscreen { position: fixed; inset: 0; z-index: 9999; }
+
+    /* ========== TEXT INPUT MODAL ========== */
+    #textInputModal {
+      display: none; position: fixed; inset: 0; z-index: 250;
+      background: rgba(0,0,0,0.6); align-items: center; justify-content: center;
+    }
+    #textInputModal.open { display: flex; }
+    .text-input-box {
+      background: #1e222d; border: 1px solid #2a2e39; border-radius: 8px;
+      padding: 16px; width: 280px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+    .text-input-box label { font-size: 13px; color: #b2b5be; display: block; margin-bottom: 8px; }
+    .text-input-box input {
+      width: 100%; padding: 8px 10px; background: #131722; border: 1px solid #2a2e39;
+      border-radius: 4px; color: #d1d4dc; font-size: 13px; outline: none; margin-bottom: 12px;
+    }
+    .text-input-box input:focus { border-color: #2962ff; }
+    .text-input-box .btn-row { display: flex; gap: 8px; justify-content: flex-end; }
+    .text-input-box .btn-row button {
+      padding: 6px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;
+    }
+    .text-input-box .btn-cancel { background: #363a45; color: #b2b5be; }
+    .text-input-box .btn-confirm { background: #2962ff; color: #fff; }
   </style>
 </head>
 <body>
@@ -393,6 +416,14 @@
         <button class="tools-menu-item" data-tool="shortPos"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M4 18h16v-2H4v2zM4 6v2h16V6H4zm0 7h16v-2H4v2z" opacity="0.6"/><path d="M12 20l4-4H8l4 4z" fill="#ef5350"/></svg> Short Position <span class="star" onclick="event.stopPropagation();toggleFav(this,'shortPos')">☆</span></button>
         <button class="tools-menu-item" data-tool="text"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M5 4v3h5.5v12h3V7H19V4z"/></svg> Text <span class="star" onclick="event.stopPropagation();toggleFav(this,'text')">☆</span></button>
         <button class="tools-menu-item" data-tool="measure"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21L21 3M3 21l3-1M3 21l1-3"/></svg> Measure <span class="star" onclick="event.stopPropagation();toggleFav(this,'measure')">☆</span></button>
+        <button class="tools-menu-item" data-tool="vline"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2v22" stroke="currentColor" stroke-width="2"/></svg> Vertical Line <span class="star" onclick="event.stopPropagation();toggleFav(this,'vline')">☆</span></button>
+        <button class="tools-menu-item" data-tool="extline"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 22L22 2M22 2h-4M22 2v4M2 22h4M2 22v-4"/></svg> Extended Line <span class="star" onclick="event.stopPropagation();toggleFav(this,'extline')">☆</span></button>
+        <button class="tools-menu-item" data-tool="ray"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 22L22 2M22 2h-6M22 2v6"/></svg> Ray <span class="star" onclick="event.stopPropagation();toggleFav(this,'ray')">☆</span></button>
+        <button class="tools-menu-item" data-tool="pricelabel"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 13h-2v-2h2v2zm0-4h-2V7h2v4z"/></svg> Price Label <span class="star" onclick="event.stopPropagation();toggleFav(this,'pricelabel')">☆</span></button>
+        <button class="tools-menu-item" data-tool="flag"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6h-5.6z"/></svg> Flag / Pin <span class="star" onclick="event.stopPropagation();toggleFav(this,'flag')">☆</span></button>
+        <button class="tools-menu-item" data-tool="angle"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 22H2M2 22L16 8"/></svg> Angle <span class="star" onclick="event.stopPropagation();toggleFav(this,'angle')">☆</span></button>
+        <button class="tools-menu-item" data-tool="path"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></svg> Path / Freehand <span class="star" onclick="event.stopPropagation();toggleFav(this,'path')">☆</span></button>
+        <button class="tools-menu-item" data-tool="eraser"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M16.24 7.76l-1.41-1.41L4.85 16.33l1.41 1.41L16.24 7.76zM18.36 5.64c.78-.78.78-2.05 0-2.83-.78-.78-2.05-.78-2.83 0l-1.41 1.41 4.24 4.24 1.41-1.41zM3 21h18v-2H3v2z"/></svg> Eraser <span class="star" onclick="event.stopPropagation();toggleFav(this,'eraser')">☆</span></button>
       </div>
     </div>
 
@@ -437,7 +468,40 @@
       <button class="tool-btn" data-tool="measure" title="Measure">
         <svg viewBox="0 0 24 24"><path d="M3 21L21 3" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="2 3"/></svg>
       </button>
+      <button class="tool-btn" data-tool="vline" title="Vertical Line">
+        <svg viewBox="0 0 24 24"><path d="M12 2v20" stroke="currentColor" stroke-width="2" stroke-dasharray="4 3"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="extline" title="Extended Line">
+        <svg viewBox="0 0 24 24"><path d="M2 22L22 2" stroke="currentColor" stroke-width="2"/><path d="M22 2h-4v2M2 22h4v-2" stroke="currentColor" stroke-width="1.5"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="ray" title="Ray">
+        <svg viewBox="0 0 24 24"><path d="M2 22L22 2" stroke="currentColor" stroke-width="2"/><path d="M22 2h-6M22 2v6" stroke="currentColor" stroke-width="1.5"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="channel" title="Parallel Channel">
+        <svg viewBox="0 0 24 24"><path d="M3 19L21 5M3 21L21 7" stroke="currentColor" stroke-width="2"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="longPos" title="Long Position">
+        <svg viewBox="0 0 24 24"><path d="M12 4l4 4H8l4-4z" fill="#26a69a"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="shortPos" title="Short Position">
+        <svg viewBox="0 0 24 24"><path d="M12 20l4-4H8l4 4z" fill="#ef5350"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="pricelabel" title="Price Label">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 13h-2v-2h2v2zm0-4h-2V7h2v4z" fill="currentColor"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="flag" title="Flag / Pin">
+        <svg viewBox="0 0 24 24"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6h-5.6z" fill="currentColor"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="angle" title="Angle">
+        <svg viewBox="0 0 24 24"><path d="M22 22H2M2 22L16 8" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="path" title="Path / Freehand">
+        <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" fill="currentColor"/></svg>
+      </button>
       <div class="tool-divider"></div>
+      <button class="tool-btn" data-tool="eraser" title="Eraser (delete single)">
+        <svg viewBox="0 0 24 24"><path d="M16.24 7.76l-1.41-1.41L4.85 16.33l1.41 1.41L16.24 7.76zM18.36 5.64c.78-.78.78-2.05 0-2.83-.78-.78-2.05-.78-2.83 0l-1.41 1.41 4.24 4.24 1.41-1.41zM3 21h18v-2H3v2z" fill="currentColor"/></svg>
+      </button>
       <button class="tool-btn" id="clearBtn" title="Clear all drawings">
         <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
       </button>
@@ -546,6 +610,35 @@
         <div class="ind-active-title">Added indicators</div>
         <div id="indActiveList"><div style="color:#636980;font-size:12px;padding:8px 0">No indicators added yet</div></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CONTEXT MENU ===== -->
+<div id="drawingContextMenu" style="display:none; position:fixed; z-index:500; background:#1e222d; border:1px solid #2a2e39; border-radius:6px; box-shadow:0 8px 24px rgba(0,0,0,0.5); padding:4px 0; min-width:120px;">
+  <button class="dropdown-item" id="ctxLockBtn" onclick="contextMenuAction('lock')">Lock</button>
+  <button class="dropdown-item" id="ctxHideBtn" onclick="contextMenuAction('hide')">Hide</button>
+  <div style="height:1px; background:#2a2e39; margin:4px 0;"></div>
+  <div style="padding:4px 16px; font-size:11px; color:#636980; text-transform:uppercase; letter-spacing:0.5px;">Color</div>
+  <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:6px; padding:4px 12px 6px; justify-items:center;">
+    <span style="width:16px; height:16px; border-radius:50%; background:#ef5350; cursor:pointer; display:block;" onclick="contextMenuAction('color', '#ef5350')"></span>
+    <span style="width:16px; height:16px; border-radius:50%; background:#26a69a; cursor:pointer; display:block;" onclick="contextMenuAction('color', '#26a69a')"></span>
+    <span style="width:16px; height:16px; border-radius:50%; background:#2962ff; cursor:pointer; display:block;" onclick="contextMenuAction('color', '#2962ff')"></span>
+    <span style="width:16px; height:16px; border-radius:50%; background:#f0b90b; cursor:pointer; display:block;" onclick="contextMenuAction('color', '#f0b90b')"></span>
+    <span style="width:16px; height:16px; border-radius:50%; background:#ffffff; cursor:pointer; display:block;" onclick="contextMenuAction('color', '#ffffff')"></span>
+  </div>
+  <div style="height:1px; background:#2a2e39; margin:4px 0;"></div>
+  <button class="dropdown-item" style="color:#ef5350;" onclick="contextMenuAction('delete')">Delete</button>
+</div>
+
+<!-- ===== TEXT INPUT MODAL ===== -->
+<div id="textInputModal">
+  <div class="text-input-box">
+    <label>Enter annotation text</label>
+    <input type="text" id="textInputField" placeholder="Type here..." autocomplete="off">
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="cancelTextInput()">Cancel</button>
+      <button class="btn-confirm" onclick="confirmTextInput()">Add</button>
     </div>
   </div>
 </div>
@@ -1443,11 +1536,24 @@ const DrawingManager = {
     overlay.addEventListener('mousedown', this.onMouseDown.bind(this));
     overlay.addEventListener('mousemove', this.onMouseMove.bind(this));
     window.addEventListener('mouseup', this.onMouseUp.bind(this));
+    overlay.addEventListener('contextmenu', this.onContextMenu.bind(this));
     
     // Add touch support for WebView / Mobile
     overlay.addEventListener('touchstart', this.onTouchStart.bind(this));
     overlay.addEventListener('touchmove', this.onTouchMove.bind(this));
     window.addEventListener('touchend', this.onTouchEnd.bind(this));
+
+    const input = document.getElementById('textInputField');
+    if (input) {
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          confirmTextInput();
+        } else if (e.key === 'Escape') {
+          e.stopPropagation();
+          cancelTextInput();
+        }
+      });
+    }
   },
 
   getMousePos(e) {
@@ -1472,6 +1578,37 @@ const DrawingManager = {
 
     // If a tool is active, place a point
     if (ChartState.activeTool !== 'cursor') {
+      if (ChartState.activeTool === 'path') {
+        this.isDrawingPath = true;
+        ChartState.draftPoints = [{ time, price }];
+        redrawDrawings();
+        return;
+      }
+      if (ChartState.activeTool === 'eraser') {
+        let clickedDrawing = null;
+        for (let j = ChartState.drawings.length - 1; j >= 0; j--) {
+          const d = ChartState.drawings[j];
+          if (d.hidden) continue;
+          const tool = this.tools[d.type];
+          if (tool && tool.isHit(d.points, pos.x, pos.y)) {
+            clickedDrawing = d;
+            break;
+          }
+        }
+        if (clickedDrawing) {
+          const id = clickedDrawing.id;
+          ChartState.drawings = ChartState.drawings.filter(d => d.id !== id);
+          this.selectedDrawing = null;
+          redrawDrawings();
+          emitEvent('drawingDeleted', { id });
+        }
+        document.querySelectorAll('[data-tool]').forEach(b => b.classList.remove('active'));
+        const cursorBtn = document.querySelector('[data-tool="cursor"]');
+        if (cursorBtn) cursorBtn.classList.add('active');
+        ChartState.activeTool = 'cursor';
+        overlay.classList.remove('drawing');
+        return;
+      }
       ChartState.draftPoints.push({ time, price });
       const tool = this.tools[ChartState.activeTool];
       if (tool && ChartState.draftPoints.length >= tool.minPoints) {
@@ -1491,14 +1628,12 @@ const DrawingManager = {
           favorite: ChartState.favoriteTools.includes(ChartState.activeTool)
         };
 
-        // Text tool requires text input popup
+        // Text tool requires custom modal input (prompt() is blocked in mobile WebViews)
         if (ChartState.activeTool === 'text') {
-          const label = prompt('Label text:', '');
-          if (!label) {
-            ChartState.draftPoints = [];
-            return;
-          }
-          newDrawing.text = label;
+          ChartState.draftPoints = [];
+          this._pendingTextDrawing = newDrawing;
+          showTextInputModal();
+          return;
         }
 
         ChartState.drawings.push(newDrawing);
@@ -1557,6 +1692,31 @@ const DrawingManager = {
     redrawDrawings();
   },
 
+  onContextMenu(e) {
+    if (ChartState.drawingsHidden) return;
+    const pos = this.getMousePos(e);
+    
+    let hitDrawing = null;
+    for (let j = ChartState.drawings.length - 1; j >= 0; j--) {
+      const d = ChartState.drawings[j];
+      if (d.hidden) continue;
+      const tool = this.tools[d.type];
+      if (tool && tool.isHit(d.points, pos.x, pos.y)) {
+        hitDrawing = d;
+        break;
+      }
+    }
+
+    if (hitDrawing) {
+      e.preventDefault();
+      this.selectedDrawing = hitDrawing;
+      redrawDrawings();
+      showContextMenu(e.clientX, e.clientY, hitDrawing);
+    } else {
+      closeContextMenu();
+    }
+  },
+
   onMouseMove(e) {
     if (ChartState.drawingsHidden) return;
     const pos = this.getMousePos(e);
@@ -1566,6 +1726,15 @@ const DrawingManager = {
     // Snapped mouse point for drawing updates
     const price = Magnet.getSnappedPrice(tp.time, tp.price);
     const time = tp.time;
+
+    if (this.isDrawingPath) {
+      const last = ChartState.draftPoints[ChartState.draftPoints.length - 1];
+      if (!last || last.time !== time || last.price !== price) {
+        ChartState.draftPoints.push({ time, price });
+        redrawDrawings();
+      }
+      return;
+    }
 
     // Handle active dragging of drawings or drag points
     if (this.draggedDrawing && !ChartState.drawingsLocked && !this.draggedDrawing.locked) {
@@ -1641,6 +1810,41 @@ const DrawingManager = {
   },
 
   onMouseUp(e) {
+    if (this.isDrawingPath) {
+      this.isDrawingPath = false;
+      if (ChartState.draftPoints.length >= 2) {
+        const id = 'drawing_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        const newDrawing = {
+          id: id,
+          type: 'path',
+          points: [...ChartState.draftPoints],
+          style: {
+            color: '#5b9cf6',
+            lineWidth: 2,
+            fillOpacity: 0.15,
+            fontSize: 12
+          },
+          locked: false,
+          hidden: false,
+          favorite: ChartState.favoriteTools.includes('path')
+        };
+        ChartState.drawings.push(newDrawing);
+        this.selectedDrawing = newDrawing;
+        emitEvent('drawingAdded', newDrawing);
+      }
+      ChartState.draftPoints = [];
+      
+      // Reset active tool back to cursor
+      document.querySelectorAll('[data-tool]').forEach(b => b.classList.remove('active'));
+      const cursorBtn = document.querySelector('[data-tool="cursor"]');
+      if (cursorBtn) cursorBtn.classList.add('active');
+      ChartState.activeTool = 'cursor';
+      overlay.classList.remove('drawing');
+      
+      redrawDrawings();
+      return;
+    }
+
     if (this.draggedDrawing) {
       emitEvent('drawingUpdated', this.draggedDrawing);
       this.draggedDrawing = null;
@@ -1678,6 +1882,125 @@ const DrawingManager = {
     emitEvent('drawingsCleared', {});
   }
 };
+
+function showTextInputModal() {
+  const modal = document.getElementById('textInputModal');
+  const input = document.getElementById('textInputField');
+  if (modal && input) {
+    input.value = '';
+    modal.classList.add('open');
+    setTimeout(() => input.focus(), 50);
+  }
+}
+
+function confirmTextInput() {
+  const modal = document.getElementById('textInputModal');
+  const input = document.getElementById('textInputField');
+  if (modal && input) {
+    const text = input.value.trim();
+    if (text && DrawingManager._pendingTextDrawing) {
+      const newDrawing = DrawingManager._pendingTextDrawing;
+      newDrawing.text = text;
+      ChartState.drawings.push(newDrawing);
+      DrawingManager.selectedDrawing = newDrawing;
+      
+      // Reset active tool back to cursor
+      document.querySelectorAll('[data-tool]').forEach(b => b.classList.remove('active'));
+      const cursorBtn = document.querySelector('[data-tool="cursor"]');
+      if (cursorBtn) cursorBtn.classList.add('active');
+      ChartState.activeTool = 'cursor';
+      overlay.classList.remove('drawing');
+      
+      redrawDrawings();
+      emitEvent('drawingAdded', newDrawing);
+    }
+    modal.classList.remove('open');
+    DrawingManager._pendingTextDrawing = null;
+  }
+}
+
+function cancelTextInput() {
+  const modal = document.getElementById('textInputModal');
+  if (modal) {
+    modal.classList.remove('open');
+  }
+  DrawingManager._pendingTextDrawing = null;
+  // Reset active tool back to cursor
+  document.querySelectorAll('[data-tool]').forEach(b => b.classList.remove('active'));
+  const cursorBtn = document.querySelector('[data-tool="cursor"]');
+  if (cursorBtn) cursorBtn.classList.add('active');
+  ChartState.activeTool = 'cursor';
+  overlay.classList.remove('drawing');
+  redrawDrawings();
+}
+
+DrawingManager.registerTool('eraser', {
+  minPoints: 9999,
+  draw() {},
+  isHit() { return false; }
+});
+
+function showContextMenu(clientX, clientY, drawing) {
+  const menu = document.getElementById('drawingContextMenu');
+  if (!menu) return;
+
+  const lockBtn = document.getElementById('ctxLockBtn');
+  const hideBtn = document.getElementById('ctxHideBtn');
+
+  if (lockBtn) lockBtn.textContent = drawing.locked ? 'Unlock' : 'Lock';
+  if (hideBtn) hideBtn.textContent = drawing.hidden ? 'Show' : 'Hide';
+
+  menu.style.display = 'block';
+  
+  // Position menu with bounds check so it doesn't overflow screen
+  const menuWidth = 140;
+  const menuHeight = 150;
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  
+  let left = clientX;
+  let top = clientY;
+  
+  if (left + menuWidth > viewportWidth) {
+    left = viewportWidth - menuWidth - 4;
+  }
+  if (top + menuHeight > viewportHeight) {
+    top = viewportHeight - menuHeight - 4;
+  }
+  
+  menu.style.left = left + 'px';
+  menu.style.top = top + 'px';
+}
+
+function closeContextMenu() {
+  const menu = document.getElementById('drawingContextMenu');
+  if (menu) menu.style.display = 'none';
+}
+
+function contextMenuAction(action, arg) {
+  const d = DrawingManager.selectedDrawing;
+  if (!d) {
+    closeContextMenu();
+    return;
+  }
+
+  if (action === 'lock') {
+    d.locked = !d.locked;
+    emitEvent('drawingUpdated', d);
+  } else if (action === 'hide') {
+    d.hidden = !d.hidden;
+    emitEvent('drawingUpdated', d);
+    DrawingManager.selectedDrawing = null;
+  } else if (action === 'delete') {
+    DrawingManager.deleteSelected();
+  } else if (action === 'color') {
+    d.style.color = arg;
+    emitEvent('drawingUpdated', d);
+  }
+
+  redrawDrawings();
+  closeContextMenu();
+}
 
 </script>
 
@@ -1923,7 +2246,7 @@ DrawingManager.registerTool('fib', {
 
     levels.forEach(lvl => {
       const currentPrice = priceStart + priceDiff * lvl.ratio;
-      const y = mainSeries.priceToCoordinate(currentPrice);
+      const y = ChartState.mainSeries.priceToCoordinate(currentPrice);
       if (y == null) return;
 
       ctx.beginPath();
@@ -1984,7 +2307,7 @@ DrawingManager.registerTool('fib', {
     const levels = [0.0, 0.236, 0.382, 0.5, 0.618, 0.786, 1.0];
     for (let ratio of levels) {
       const currentPrice = priceStart + priceDiff * ratio;
-      const y = mainSeries.priceToCoordinate(currentPrice);
+      const y = ChartState.mainSeries.priceToCoordinate(currentPrice);
       if (y != null && Math.abs(clickY - y) < 8) {
         return true;
       }
@@ -2000,14 +2323,33 @@ DrawingManager.registerTool('fib', {
 // parallel-channel.js — Parallel Channel drawing tool.
 
 DrawingManager.registerTool('channel', {
-  minPoints: 2,
+  minPoints: 3,
 
   draw(ctx, points, style, isSelected, hoveredPtIdx) {
+    if (points.length < 2) return;
     const a = timePriceToPx(points[0].time, points[0].price);
     const b = timePriceToPx(points[1].time, points[1].price);
     if (a.x == null || b.x == null) return;
 
-    const offsetVal = 40; // 40-pixel offset for the parallel channel boundary
+    let priceOffset = 0;
+    if (points.length >= 3) {
+      // Calculate vertical shift in price space
+      const tDiff = points[1].time - points[0].time;
+      const slope = tDiff !== 0 ? (points[1].price - points[0].price) / tDiff : 0;
+      const mainPriceAtPt2 = points[0].price + slope * (points[2].time - points[0].time);
+      priceOffset = points[2].price - mainPriceAtPt2;
+    } else {
+      // Default price offset if 3rd point not placed yet (e.g. 2% of price)
+      priceOffset = points[0].price * 0.02;
+    }
+
+    const aOffsetPrice = points[0].price + priceOffset;
+    const bOffsetPrice = points[1].price + priceOffset;
+
+    const aOffset = timePriceToPx(points[0].time, aOffsetPrice);
+    const bOffset = timePriceToPx(points[1].time, bOffsetPrice);
+
+    if (aOffset.y == null || bOffset.y == null) return;
 
     // Main line
     ctx.beginPath();
@@ -2019,65 +2361,91 @@ DrawingManager.registerTool('channel', {
 
     // Parallel line
     ctx.beginPath();
-    ctx.moveTo(a.x, a.y + offsetVal);
-    ctx.lineTo(b.x, b.y + offsetVal);
+    ctx.moveTo(aOffset.x, aOffset.y);
+    ctx.lineTo(bOffset.x, bOffset.y);
     ctx.stroke();
 
     // Channel fill
     ctx.beginPath();
     ctx.moveTo(a.x, a.y);
     ctx.lineTo(b.x, b.y);
-    ctx.lineTo(b.x, b.y + offsetVal);
-    ctx.lineTo(a.x, a.y + offsetVal);
+    ctx.lineTo(bOffset.x, bOffset.y);
+    ctx.lineTo(aOffset.x, aOffset.y);
     ctx.closePath();
     ctx.fillStyle = (style.color || '#5b9cf6') + '1a'; // ~10% opacity fill
     ctx.fill();
 
     // Center dotted line
-    ctx.beginPath();
-    ctx.strokeStyle = style.color || '#5b9cf6';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([4, 4]);
-    ctx.moveTo(a.x, a.y + offsetVal / 2);
-    ctx.lineTo(b.x, b.y + offsetVal / 2);
-    ctx.stroke();
-    ctx.setLineDash([]);
+    const aCenter = timePriceToPx(points[0].time, points[0].price + priceOffset / 2);
+    const bCenter = timePriceToPx(points[1].time, points[1].price + priceOffset / 2);
+    if (aCenter.y != null && bCenter.y != null) {
+      ctx.beginPath();
+      ctx.strokeStyle = style.color || '#5b9cf6';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.moveTo(aCenter.x, aCenter.y);
+      ctx.lineTo(bCenter.x, bCenter.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
 
     if (isSelected) {
-      ctx.beginPath();
-      ctx.fillStyle = hoveredPtIdx === 0 ? '#f0b90b' : '#ffffff';
-      ctx.strokeStyle = '#2962ff';
-      ctx.lineWidth = 2;
-      ctx.arc(a.x, a.y, 5, 0, 2 * Math.PI);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.fillStyle = hoveredPtIdx === 1 ? '#f0b90b' : '#ffffff';
-      ctx.strokeStyle = '#2962ff';
-      ctx.lineWidth = 2;
-      ctx.arc(b.x, b.y, 5, 0, 2 * Math.PI);
-      ctx.fill();
-      ctx.stroke();
+      const handles = [a, b];
+      if (points.length >= 3) {
+        const c = timePriceToPx(points[2].time, points[2].price);
+        if (c.x != null) handles.push(c);
+      }
+      this.drawHandles(ctx, handles, hoveredPtIdx);
     }
   },
 
+  drawHandles(ctx, pointsPx, hoveredPtIdx) {
+    pointsPx.forEach((p, idx) => {
+      ctx.beginPath();
+      ctx.fillStyle = idx === hoveredPtIdx ? '#f0b90b' : '#ffffff';
+      ctx.strokeStyle = '#2962ff';
+      ctx.lineWidth = 2;
+      ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.stroke();
+    });
+  },
+
   isHit(points, clickX, clickY) {
+    if (points.length < 2) return false;
     const a = timePriceToPx(points[0].time, points[0].price);
     const b = timePriceToPx(points[1].time, points[1].price);
     if (a.x == null || b.x == null) return false;
 
-    // Check hit within the channel polygon (defined by y and y + 40 offset)
     const minX = Math.min(a.x, b.x);
     const maxX = Math.max(a.x, b.x);
     if (clickX < minX - 5 || clickX > maxX + 5) return false;
 
-    // Interpolate the y value of top line at clickX
     const t = (clickX - a.x) / (b.x - a.x);
     const topY = a.y + t * (b.y - a.y);
-    const bottomY = topY + 40;
 
-    return clickY >= topY - 8 && clickY <= bottomY + 8;
+    let priceOffset = 0;
+    if (points.length >= 3) {
+      const tDiff = points[1].time - points[0].time;
+      const slope = tDiff !== 0 ? (points[1].price - points[0].price) / tDiff : 0;
+      const mainPriceAtPt2 = points[0].price + slope * (points[2].time - points[0].time);
+      priceOffset = points[2].price - mainPriceAtPt2;
+    } else {
+      priceOffset = points[0].price * 0.02;
+    }
+
+    const aOffsetPrice = points[0].price + priceOffset;
+    const bOffsetPrice = points[1].price + priceOffset;
+    const aOffset = timePriceToPx(points[0].time, aOffsetPrice);
+    const bOffset = timePriceToPx(points[1].time, bOffsetPrice);
+    if (aOffset.y == null || bOffset.y == null) return false;
+
+    const bottomY = aOffset.y + t * (bOffset.y - aOffset.y);
+
+    const yMin = Math.min(topY, bottomY);
+    const yMax = Math.max(topY, bottomY);
+
+    return clickY >= yMin - 8 && clickY <= yMax + 8;
   }
 });
 
@@ -2095,9 +2463,20 @@ DrawingManager.registerTool('longPos', {
     const b = timePriceToPx(points[1].time, points[1].price);
     if (a.x == null || b.x == null) return;
 
+    // Initialize stop loss point (points[2]) if not present
+    if (points.length < 3) {
+      const entryPrice = points[0].price;
+      const defaultStopPrice = entryPrice * 0.975; // -2.5% stop loss
+      points.push({ time: points[1].time, price: defaultStopPrice });
+    }
+
+    // Align point 2 time with point 1 time
+    points[2].time = points[1].time;
+    const c = timePriceToPx(points[2].time, points[2].price);
+
     const entryPrice = points[0].price;
-    const targetPrice = entryPrice * 1.05; // 5% target
-    const stopPrice = entryPrice * 0.975;  // 2.5% stop loss
+    const targetPrice = points[1].price;
+    const stopPrice = points[2].price;
 
     const targetY = mainSeries.priceToCoordinate(targetPrice);
     const stopY = mainSeries.priceToCoordinate(stopPrice);
@@ -2108,14 +2487,14 @@ DrawingManager.registerTool('longPos', {
     const w = maxX - minX;
 
     // Draw Target Box (Green)
-    ctx.fillStyle = 'rgba(38, 166, 154, 0.2)';
+    ctx.fillStyle = 'rgba(38, 166, 154, 0.15)';
     ctx.fillRect(minX, targetY, w, a.y - targetY);
     ctx.strokeStyle = '#26a69a';
     ctx.lineWidth = 1;
     ctx.strokeRect(minX, targetY, w, a.y - targetY);
 
     // Draw Stop Box (Red)
-    ctx.fillStyle = 'rgba(239, 83, 80, 0.2)';
+    ctx.fillStyle = 'rgba(239, 83, 80, 0.15)';
     ctx.fillRect(minX, a.y, w, stopY - a.y);
     ctx.strokeStyle = '#ef5350';
     ctx.strokeRect(minX, a.y, w, stopY - a.y);
@@ -2128,30 +2507,36 @@ DrawingManager.registerTool('longPos', {
     ctx.lineTo(maxX, a.y);
     ctx.stroke();
 
+    // Calculations for labels
+    const targetDiff = targetPrice - entryPrice;
+    const targetPct = ((targetDiff / entryPrice) * 100).toFixed(2);
+    const stopDiff = entryPrice - stopPrice;
+    const stopPct = ((stopDiff / entryPrice) * 100).toFixed(2);
+    const rrRatio = stopDiff !== 0 ? (targetDiff / stopDiff).toFixed(2) : '0.00';
+
     // Print text info
     ctx.fillStyle = '#ffffff';
-    ctx.font = '10px sans-serif';
-    ctx.fillText('Target: +5.00%', minX + 4, targetY + 12);
-    ctx.fillText('Risk/Reward: 2.00', minX + 4, a.y - 4);
-    ctx.fillText('Stop Loss: -2.50%', minX + 4, stopY - 4);
+    ctx.font = 'bold 9px sans-serif';
+    ctx.fillText(`Target: +${targetPct}% (${targetPrice.toFixed(2)})`, minX + 4, targetY + 12);
+    ctx.fillText(`R:R Ratio: ${rrRatio}`, minX + 4, a.y - 4);
+    ctx.fillText(`Stop Loss: -${stopPct}% (${stopPrice.toFixed(2)})`, minX + 4, stopY - 4);
 
     if (isSelected) {
-      ctx.beginPath();
-      ctx.fillStyle = hoveredPtIdx === 0 ? '#f0b90b' : '#ffffff';
-      ctx.strokeStyle = '#2962ff';
-      ctx.lineWidth = 2;
-      ctx.arc(a.x, a.y, 5, 0, 2 * Math.PI);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.fillStyle = hoveredPtIdx === 1 ? '#f0b90b' : '#ffffff';
-      ctx.strokeStyle = '#2962ff';
-      ctx.lineWidth = 2;
-      ctx.arc(b.x, b.y, 5, 0, 2 * Math.PI);
-      ctx.fill();
-      ctx.stroke();
+      // Draw handles at points[0], points[1], points[2]
+      this.drawHandles(ctx, [a, b, c], hoveredPtIdx);
     }
+  },
+
+  drawHandles(ctx, pointsPx, hoveredPtIdx) {
+    pointsPx.forEach((p, idx) => {
+      ctx.beginPath();
+      ctx.fillStyle = idx === hoveredPtIdx ? '#f0b90b' : '#ffffff';
+      ctx.strokeStyle = '#2962ff';
+      ctx.lineWidth = 2;
+      ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.stroke();
+    });
   },
 
   isHit(points, clickX, clickY) {
@@ -2159,9 +2544,10 @@ DrawingManager.registerTool('longPos', {
     const b = timePriceToPx(points[1].time, points[1].price);
     if (a.x == null || b.x == null) return false;
 
-    const entryPrice = points[0].price;
-    const targetPrice = entryPrice * 1.05;
-    const stopPrice = entryPrice * 0.975;
+    // Use points[2] stop price if available
+    const stopPrice = points.length >= 3 ? points[2].price : points[0].price * 0.975;
+    const targetPrice = points[1].price;
+
     const targetY = mainSeries.priceToCoordinate(targetPrice);
     const stopY = mainSeries.priceToCoordinate(stopPrice);
 
@@ -2170,7 +2556,10 @@ DrawingManager.registerTool('longPos', {
     const minX = Math.min(a.x, b.x);
     const maxX = Math.max(a.x, b.x);
 
-    return clickX >= minX - 5 && clickX <= maxX + 5 && clickY >= targetY - 5 && clickY <= stopY + 5;
+    const yMin = Math.min(targetY, stopY);
+    const yMax = Math.max(targetY, stopY);
+
+    return clickX >= minX - 5 && clickX <= maxX + 5 && clickY >= yMin - 5 && clickY <= yMax + 5;
   }
 });
 
@@ -2188,9 +2577,20 @@ DrawingManager.registerTool('shortPos', {
     const b = timePriceToPx(points[1].time, points[1].price);
     if (a.x == null || b.x == null) return;
 
+    // Initialize stop loss point (points[2]) if not present
+    if (points.length < 3) {
+      const entryPrice = points[0].price;
+      const defaultStopPrice = entryPrice * 1.025; // +2.5% stop loss above
+      points.push({ time: points[1].time, price: defaultStopPrice });
+    }
+
+    // Align point 2 time with point 1 time
+    points[2].time = points[1].time;
+    const c = timePriceToPx(points[2].time, points[2].price);
+
     const entryPrice = points[0].price;
-    const targetPrice = entryPrice * 0.95; // 5% target below
-    const stopPrice = entryPrice * 1.025;  // 2.5% stop loss above
+    const targetPrice = points[1].price;
+    const stopPrice = points[2].price;
 
     const targetY = mainSeries.priceToCoordinate(targetPrice);
     const stopY = mainSeries.priceToCoordinate(stopPrice);
@@ -2201,14 +2601,14 @@ DrawingManager.registerTool('shortPos', {
     const w = maxX - minX;
 
     // Draw Stop Box (Red)
-    ctx.fillStyle = 'rgba(239, 83, 80, 0.2)';
+    ctx.fillStyle = 'rgba(239, 83, 80, 0.15)';
     ctx.fillRect(minX, stopY, w, a.y - stopY);
     ctx.strokeStyle = '#ef5350';
     ctx.lineWidth = 1;
     ctx.strokeRect(minX, stopY, w, a.y - stopY);
 
     // Draw Target Box (Green)
-    ctx.fillStyle = 'rgba(38, 166, 154, 0.2)';
+    ctx.fillStyle = 'rgba(38, 166, 154, 0.15)';
     ctx.fillRect(minX, a.y, w, targetY - a.y);
     ctx.strokeStyle = '#26a69a';
     ctx.strokeRect(minX, a.y, w, targetY - a.y);
@@ -2221,30 +2621,35 @@ DrawingManager.registerTool('shortPos', {
     ctx.lineTo(maxX, a.y);
     ctx.stroke();
 
+    // Calculations for labels
+    const targetDiff = entryPrice - targetPrice;
+    const targetPct = ((targetDiff / entryPrice) * 100).toFixed(2);
+    const stopDiff = stopPrice - entryPrice;
+    const stopPct = ((stopDiff / entryPrice) * 100).toFixed(2);
+    const rrRatio = stopDiff !== 0 ? (targetDiff / stopDiff).toFixed(2) : '0.00';
+
     // Print text info
     ctx.fillStyle = '#ffffff';
-    ctx.font = '10px sans-serif';
-    ctx.fillText('Stop Loss: +2.50%', minX + 4, stopY + 12);
-    ctx.fillText('Risk/Reward: 2.00', minX + 4, a.y - 4);
-    ctx.fillText('Target: -5.00%', minX + 4, targetY - 4);
+    ctx.font = 'bold 9px sans-serif';
+    ctx.fillText(`Stop Loss: +${stopPct}% (${stopPrice.toFixed(2)})`, minX + 4, stopY + 12);
+    ctx.fillText(`R:R Ratio: ${rrRatio}`, minX + 4, a.y - 4);
+    ctx.fillText(`Target: -${targetPct}% (${targetPrice.toFixed(2)})`, minX + 4, targetY - 4);
 
     if (isSelected) {
-      ctx.beginPath();
-      ctx.fillStyle = hoveredPtIdx === 0 ? '#f0b90b' : '#ffffff';
-      ctx.strokeStyle = '#2962ff';
-      ctx.lineWidth = 2;
-      ctx.arc(a.x, a.y, 5, 0, 2 * Math.PI);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.fillStyle = hoveredPtIdx === 1 ? '#f0b90b' : '#ffffff';
-      ctx.strokeStyle = '#2962ff';
-      ctx.lineWidth = 2;
-      ctx.arc(b.x, b.y, 5, 0, 2 * Math.PI);
-      ctx.fill();
-      ctx.stroke();
+      this.drawHandles(ctx, [a, b, c], hoveredPtIdx);
     }
+  },
+
+  drawHandles(ctx, pointsPx, hoveredPtIdx) {
+    pointsPx.forEach((p, idx) => {
+      ctx.beginPath();
+      ctx.fillStyle = idx === hoveredPtIdx ? '#f0b90b' : '#ffffff';
+      ctx.strokeStyle = '#2962ff';
+      ctx.lineWidth = 2;
+      ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.stroke();
+    });
   },
 
   isHit(points, clickX, clickY) {
@@ -2252,9 +2657,9 @@ DrawingManager.registerTool('shortPos', {
     const b = timePriceToPx(points[1].time, points[1].price);
     if (a.x == null || b.x == null) return false;
 
-    const entryPrice = points[0].price;
-    const targetPrice = entryPrice * 0.95;
-    const stopPrice = entryPrice * 1.025;
+    const stopPrice = points.length >= 3 ? points[2].price : points[0].price * 1.025;
+    const targetPrice = points[1].price;
+
     const targetY = mainSeries.priceToCoordinate(targetPrice);
     const stopY = mainSeries.priceToCoordinate(stopPrice);
 
@@ -2263,7 +2668,10 @@ DrawingManager.registerTool('shortPos', {
     const minX = Math.min(a.x, b.x);
     const maxX = Math.max(a.x, b.x);
 
-    return clickX >= minX - 5 && clickX <= maxX + 5 && clickY >= stopY - 5 && clickY <= targetY + 5;
+    const yMin = Math.min(targetY, stopY);
+    const yMax = Math.max(targetY, stopY);
+
+    return clickX >= minX - 5 && clickX <= maxX + 5 && clickY >= yMin - 5 && clickY <= yMax + 5;
   }
 });
 
@@ -2416,6 +2824,514 @@ DrawingManager.registerTool('measure', {
     const dx = clickX - xx;
     const dy = clickY - yy;
     return Math.hypot(dx, dy) < 12; // slightly larger hit threshold for measure ruler
+  }
+});
+
+</script>
+
+<script>
+// === Inlined from: js/drawings/tools/vertical-line.js ===
+// vertical-line.js — Vertical Line drawing tool.
+
+DrawingManager.registerTool('vline', {
+  minPoints: 1,
+
+  draw(ctx, points, style, isSelected, hoveredPtIdx) {
+    const p = timePriceToPx(points[0].time, points[0].price);
+    if (p.x == null) return;
+
+    ctx.beginPath();
+    ctx.strokeStyle = style.color || '#5b9cf6';
+    ctx.lineWidth = style.lineWidth || 2;
+    ctx.setLineDash([4, 3]);
+    ctx.moveTo(p.x, 0);
+    ctx.lineTo(p.x, overlay.height);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    if (isSelected) {
+      ctx.beginPath();
+      ctx.fillStyle = hoveredPtIdx === 0 ? '#f0b90b' : '#ffffff';
+      ctx.strokeStyle = '#2962ff';
+      ctx.lineWidth = 2;
+      ctx.arc(p.x, p.y != null ? p.y : overlay.height / 2, 5, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.stroke();
+    }
+  },
+
+  isHit(points, clickX, clickY) {
+    const p = timePriceToPx(points[0].time, points[0].price);
+    if (p.x == null) return false;
+    return Math.abs(clickX - p.x) < 8;
+  }
+});
+
+</script>
+
+<script>
+// === Inlined from: js/drawings/tools/extended-line.js ===
+// extended-line.js — Extended Line drawing tool extending infinitely in both directions.
+
+DrawingManager.registerTool('extline', {
+  minPoints: 2,
+
+  draw(ctx, points, style, isSelected, hoveredPtIdx) {
+    const a = timePriceToPx(points[0].time, points[0].price);
+    const b = timePriceToPx(points[1].time, points[1].price);
+    if (a.x == null || b.x == null) return;
+
+    ctx.beginPath();
+    ctx.strokeStyle = style.color || '#5b9cf6';
+    ctx.lineWidth = style.lineWidth || 2;
+
+    if (Math.abs(b.x - a.x) < 0.01) {
+      // Vertical line
+      ctx.moveTo(a.x, 0);
+      ctx.lineTo(a.x, overlay.height);
+    } else {
+      const m = (b.y - a.y) / (b.x - a.x);
+      const yLeft = a.y - m * a.x;
+      const yRight = a.y + m * (overlay.width - a.x);
+      ctx.moveTo(0, yLeft);
+      ctx.lineTo(overlay.width, yRight);
+    }
+    ctx.stroke();
+
+    if (isSelected) {
+      this.drawHandles(ctx, [a, b], hoveredPtIdx);
+    }
+  },
+
+  drawHandles(ctx, pointsPx, hoveredPtIdx) {
+    pointsPx.forEach((p, idx) => {
+      ctx.beginPath();
+      ctx.fillStyle = idx === hoveredPtIdx ? '#f0b90b' : '#ffffff';
+      ctx.strokeStyle = '#2962ff';
+      ctx.lineWidth = 2;
+      ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.stroke();
+    });
+  },
+
+  isHit(points, clickX, clickY) {
+    const a = timePriceToPx(points[0].time, points[0].price);
+    const b = timePriceToPx(points[1].time, points[1].price);
+    if (a.x == null || b.x == null) return false;
+
+    const A = clickX - a.x;
+    const B = clickY - a.y;
+    const C = b.x - a.x;
+    const D = b.y - a.y;
+
+    const dot = A * C + B * D;
+    const lenSq = C * C + D * D;
+    if (lenSq === 0) return false;
+    const param = dot / lenSq;
+
+    const xx = a.x + param * C;
+    const yy = a.y + param * D;
+
+    const dx = clickX - xx;
+    const dy = clickY - yy;
+    return Math.hypot(dx, dy) < 8;
+  }
+});
+
+</script>
+
+<script>
+// === Inlined from: js/drawings/tools/ray.js ===
+// ray.js — Ray drawing tool starting at point A and extending infinitely through point B.
+
+DrawingManager.registerTool('ray', {
+  minPoints: 2,
+
+  draw(ctx, points, style, isSelected, hoveredPtIdx) {
+    const a = timePriceToPx(points[0].time, points[0].price);
+    const b = timePriceToPx(points[1].time, points[1].price);
+    if (a.x == null || b.x == null) return;
+
+    const end = this.getEndPoint(a, b);
+
+    ctx.beginPath();
+    ctx.strokeStyle = style.color || '#5b9cf6';
+    ctx.lineWidth = style.lineWidth || 2;
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(end.x, end.y);
+    ctx.stroke();
+
+    if (isSelected) {
+      this.drawHandles(ctx, [a, b], hoveredPtIdx);
+    }
+  },
+
+  drawHandles(ctx, pointsPx, hoveredPtIdx) {
+    pointsPx.forEach((p, idx) => {
+      ctx.beginPath();
+      ctx.fillStyle = idx === hoveredPtIdx ? '#f0b90b' : '#ffffff';
+      ctx.strokeStyle = '#2962ff';
+      ctx.lineWidth = 2;
+      ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.stroke();
+    });
+  },
+
+  getEndPoint(a, b) {
+    if (Math.abs(b.x - a.x) < 0.01) {
+      const yEnd = b.y >= a.y ? overlay.height : 0;
+      return { x: a.x, y: yEnd };
+    }
+    const isRight = b.x > a.x;
+    const targetX = isRight ? overlay.width + 1000 : -1000;
+    const yEnd = a.y + (b.y - a.y) * ((targetX - a.x) / (b.x - a.x));
+    return { x: targetX, y: yEnd };
+  },
+
+  isHit(points, clickX, clickY) {
+    const a = timePriceToPx(points[0].time, points[0].price);
+    const b = timePriceToPx(points[1].time, points[1].price);
+    if (a.x == null || b.x == null) return false;
+
+    const end = this.getEndPoint(a, b);
+
+    const A = clickX - a.x;
+    const B = clickY - a.y;
+    const C = end.x - a.x;
+    const D = end.y - a.y;
+
+    const dot = A * C + B * D;
+    const lenSq = C * C + D * D;
+    let param = -1;
+    if (lenSq !== 0) param = dot / lenSq;
+
+    if (param < 0 || param > 1) return false;
+
+    const xx = a.x + param * C;
+    const yy = a.y + param * D;
+
+    const dx = clickX - xx;
+    const dy = clickY - yy;
+    return Math.hypot(dx, dy) < 8;
+  }
+});
+
+</script>
+
+<script>
+// === Inlined from: js/drawings/tools/price-label.js ===
+// price-label.js — Price Label drawing tool.
+
+DrawingManager.registerTool('pricelabel', {
+  minPoints: 1,
+
+  draw(ctx, points, style, isSelected, hoveredPtIdx) {
+    const p = timePriceToPx(points[0].time, points[0].price);
+    if (p.x == null || p.y == null) return;
+
+    const priceText = points[0].price.toFixed(2);
+    ctx.font = 'bold 10px sans-serif';
+    const textWidth = ctx.measureText(priceText).width;
+
+    // Draw horizontal dotted line to the right edge
+    ctx.beginPath();
+    ctx.strokeStyle = style.color || '#e02424';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([2, 2]);
+    ctx.moveTo(p.x, p.y);
+    ctx.lineTo(overlay.width, p.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Draw connector dot at point A
+    ctx.beginPath();
+    ctx.fillStyle = style.color || '#e02424';
+    ctx.arc(p.x, p.y, 4, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Draw price tag pill at the right edge of the chart area
+    const pillHeight = 16;
+    const pillWidth = textWidth + 8;
+    const pillX = overlay.width - pillWidth - 2;
+    const pillY = p.y - pillHeight / 2;
+
+    ctx.fillStyle = style.color || '#e02424';
+    ctx.beginPath();
+    // Fallback for older browsers if roundRect is missing
+    if (ctx.roundRect) {
+      ctx.roundRect(pillX, pillY, pillWidth, pillHeight, 3);
+    } else {
+      ctx.rect(pillX, pillY, pillWidth, pillHeight);
+    }
+    ctx.fill();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(priceText, pillX + 4, p.y + 3);
+
+    if (isSelected) {
+      ctx.beginPath();
+      ctx.fillStyle = hoveredPtIdx === 0 ? '#f0b90b' : '#ffffff';
+      ctx.strokeStyle = '#2962ff';
+      ctx.lineWidth = 2;
+      ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.stroke();
+    }
+  },
+
+  isHit(points, clickX, clickY) {
+    const p = timePriceToPx(points[0].time, points[0].price);
+    if (p.x == null || p.y == null) return false;
+
+    // Hit if clicked close to the point or the horizontal extension line
+    if (clickX >= p.x - 5 && clickX <= overlay.width && Math.abs(clickY - p.y) < 8) {
+      return true;
+    }
+    return false;
+  }
+});
+
+</script>
+
+<script>
+// === Inlined from: js/drawings/tools/flag.js ===
+// flag.js — Flag drawing tool.
+
+DrawingManager.registerTool('flag', {
+  minPoints: 1,
+
+  draw(ctx, points, style, isSelected, hoveredPtIdx) {
+    const p = timePriceToPx(points[0].time, points[0].price);
+    if (p.x == null || p.y == null) return;
+
+    const flagHeight = 12;
+    const flagWidth = 18;
+    const poleHeight = 28;
+
+    // Draw flagpole (vertical line going upwards)
+    ctx.beginPath();
+    ctx.strokeStyle = style.color || '#f59e0b';
+    ctx.lineWidth = 2;
+    ctx.moveTo(p.x, p.y);
+    ctx.lineTo(p.x, p.y - poleHeight);
+    ctx.stroke();
+
+    // Draw flag banner
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y - poleHeight);
+    ctx.lineTo(p.x + flagWidth, p.y - poleHeight + flagHeight / 2);
+    ctx.lineTo(p.x, p.y - poleHeight + flagHeight);
+    ctx.closePath();
+
+    ctx.fillStyle = style.color || '#f59e0b';
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    if (isSelected) {
+      ctx.beginPath();
+      ctx.fillStyle = hoveredPtIdx === 0 ? '#f0b90b' : '#ffffff';
+      ctx.strokeStyle = '#2962ff';
+      ctx.lineWidth = 2;
+      ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.stroke();
+    }
+  },
+
+  isHit(points, clickX, clickY) {
+    const p = timePriceToPx(points[0].time, points[0].price);
+    if (p.x == null || p.y == null) return;
+
+    const poleHeight = 28;
+    // Hit if clicked close to the flagpole/banner
+    return Math.abs(clickX - p.x) < 8 && clickY <= p.y + 5 && clickY >= p.y - poleHeight - 5;
+  }
+});
+
+</script>
+
+<script>
+// === Inlined from: js/drawings/tools/angle.js ===
+// angle.js — Angle measurement drawing tool.
+
+DrawingManager.registerTool('angle', {
+  minPoints: 3,
+
+  draw(ctx, points, style, isSelected, hoveredPtIdx) {
+    if (points.length < 2) return;
+    const a = timePriceToPx(points[0].time, points[0].price);
+    const b = timePriceToPx(points[1].time, points[1].price);
+    if (a.x == null || b.x == null) return;
+
+    ctx.beginPath();
+    ctx.strokeStyle = style.color || '#5b9cf6';
+    ctx.lineWidth = style.lineWidth || 2;
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+
+    if (points.length >= 3) {
+      const c = timePriceToPx(points[2].time, points[2].price);
+      if (c.x != null) {
+        ctx.beginPath();
+        ctx.moveTo(b.x, b.y);
+        ctx.lineTo(c.x, c.y);
+        ctx.stroke();
+
+        // Calculate angle between vectors BA (b->a) and BC (b->c)
+        const v1x = a.x - b.x;
+        const v1y = a.y - b.y;
+        const v2x = c.x - b.x;
+        const v2y = c.y - b.y;
+
+        const len1 = Math.hypot(v1x, v1y);
+        const len2 = Math.hypot(v2x, v2y);
+        if (len1 > 0 && len2 > 0) {
+          const dot = v1x * v2x + v1y * v2y;
+          let cosTheta = dot / (len1 * len2);
+          cosTheta = Math.max(-1, Math.min(1, cosTheta));
+          const angleRad = Math.acos(cosTheta);
+          const angleDeg = angleRad * (180 / Math.PI);
+
+          const text = `${angleDeg.toFixed(1)}°`;
+          ctx.font = 'bold 11px sans-serif';
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText(text, b.x + 8, b.y - 8);
+        }
+      }
+    }
+
+    if (isSelected) {
+      const handles = [a, b];
+      if (points.length >= 3) {
+        const c = timePriceToPx(points[2].time, points[2].price);
+        if (c.x != null) handles.push(c);
+      }
+      this.drawHandles(ctx, handles, hoveredPtIdx);
+    }
+  },
+
+  drawHandles(ctx, pointsPx, hoveredPtIdx) {
+    pointsPx.forEach((p, idx) => {
+      ctx.beginPath();
+      ctx.fillStyle = idx === hoveredPtIdx ? '#f0b90b' : '#ffffff';
+      ctx.strokeStyle = '#2962ff';
+      ctx.lineWidth = 2;
+      ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.stroke();
+    });
+  },
+
+  isHit(points, clickX, clickY) {
+    if (points.length < 2) return false;
+    const a = timePriceToPx(points[0].time, points[0].price);
+    const b = timePriceToPx(points[1].time, points[1].price);
+    if (a.x == null || b.x == null) return false;
+
+    if (this.isPointNearSegment(clickX, clickY, a, b)) return true;
+
+    if (points.length >= 3) {
+      const c = timePriceToPx(points[2].time, points[2].price);
+      if (c.x != null && this.isPointNearSegment(clickX, clickY, b, c)) return true;
+    }
+    return false;
+  },
+
+  isPointNearSegment(px, py, p1, p2) {
+    const A = px - p1.x;
+    const B = py - p1.y;
+    const C = p2.x - p1.x;
+    const D = p2.y - p1.y;
+
+    const dot = A * C + B * D;
+    const lenSq = C * C + D * D;
+    let param = -1;
+    if (lenSq !== 0) param = dot / lenSq;
+
+    let xx, yy;
+    if (param < 0) {
+      xx = p1.x;
+      yy = p1.y;
+    } else if (param > 1) {
+      xx = p2.x;
+      yy = p2.y;
+    } else {
+      xx = p1.x + param * C;
+      yy = p1.y + param * D;
+    }
+
+    const dx = px - xx;
+    const dy = py - yy;
+    return Math.hypot(dx, dy) < 8;
+  }
+});
+
+</script>
+
+<script>
+// === Inlined from: js/drawings/tools/path.js ===
+// path.js — Freehand path drawing tool.
+
+DrawingManager.registerTool('path', {
+  minPoints: 1,
+
+  draw(ctx, points, style, isSelected, hoveredPtIdx) {
+    if (points.length < 2) return;
+
+    ctx.beginPath();
+    ctx.strokeStyle = style.color || '#5b9cf6';
+    ctx.lineWidth = style.lineWidth || 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    const first = timePriceToPx(points[0].time, points[0].price);
+    if (first.x != null) {
+      ctx.moveTo(first.x, first.y);
+    }
+
+    for (let i = 1; i < points.length; i++) {
+      const p = timePriceToPx(points[i].time, points[i].price);
+      if (p.x != null) {
+        ctx.lineTo(p.x, p.y);
+      }
+    }
+    ctx.stroke();
+
+    if (isSelected) {
+      const handles = [];
+      const start = timePriceToPx(points[0].time, points[0].price);
+      const end = timePriceToPx(points[points.length - 1].time, points[points.length - 1].price);
+      if (start.x != null) handles.push(start);
+      if (end.x != null) handles.push(end);
+      this.drawHandles(ctx, handles, hoveredPtIdx === 0 ? 0 : (hoveredPtIdx === points.length - 1 ? 1 : -1));
+    }
+  },
+
+  drawHandles(ctx, pointsPx, hoveredPtIdx) {
+    pointsPx.forEach((p, idx) => {
+      ctx.beginPath();
+      ctx.fillStyle = idx === hoveredPtIdx ? '#f0b90b' : '#ffffff';
+      ctx.strokeStyle = '#2962ff';
+      ctx.lineWidth = 2;
+      ctx.arc(p.x, p.y, 4, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.stroke();
+    });
+  },
+
+  isHit(points, clickX, clickY) {
+    for (let i = 0; i < points.length; i += Math.max(1, Math.floor(points.length / 50))) {
+      const p = timePriceToPx(points[i].time, points[i].price);
+      if (p.x != null && Math.hypot(clickX - p.x, clickY - p.y) < 12) {
+        return true;
+      }
+    }
+    return false;
   }
 });
 
@@ -2637,6 +3553,22 @@ window.ChartBridge = {
   applyLayout(layoutJson) {
     try {
       const layout = JSON.parse(layoutJson);
+      if (layout.interval) {
+        ChartState.interval = layout.interval;
+        const tf = layout.interval.label;
+        document.querySelectorAll('#topbar > .tb-btn[data-tf]').forEach(b => {
+          b.classList.toggle('active', b.dataset.tf === tf);
+        });
+        document.querySelectorAll('#tfDropdown .dropdown-item').forEach(b => {
+          b.classList.toggle('active', b.dataset.tf === tf);
+        });
+        emitEvent('timeframeChanged', {
+          tf: tf,
+          interval: layout.interval.value,
+          unit: layout.interval.unit,
+          rangeShortcut: null
+        });
+      }
       if (layout.chartType) {
         this.setChartType(layout.chartType);
       }
@@ -2890,18 +3822,42 @@ function setSeriesType(type) {
 
 chart.subscribeCrosshairMove(param => {
   if (!ChartState.ohlcLegendVisible) { ohlcEl.innerHTML = ''; return; }
-  if (!param.time || !param.seriesData.size) { ohlcEl.innerHTML = ''; return; }
-  const d = param.seriesData.get(mainSeries);
-  if (!d) return;
-  if (d.open !== undefined) {
-    const dir = d.close >= d.open ? 'up' : 'down';
-    ohlcEl.innerHTML =
-      `<span>O <b class="${dir}">${d.open.toFixed(2)}</b></span>` +
-      `<span>H <b class="${dir}">${d.high.toFixed(2)}</b></span>` +
-      `<span>L <b class="${dir}">${d.low.toFixed(2)}</b></span>` +
-      `<span>C <b class="${dir}">${d.close.toFixed(2)}</b></span>`;
-  } else if (d.value !== undefined) {
-    ohlcEl.innerHTML = `<span>Value <b>${d.value.toFixed(2)}</b></span>`;
+
+  // Helper to render OHLC + Volume + %Chg for a given bar object
+  function renderOhlcBar(d, barData) {
+    if (d.open !== undefined) {
+      const dir = d.close >= d.open ? 'up' : 'down';
+      const chg = d.close - d.open;
+      const chgPct = d.open !== 0 ? ((chg / d.open) * 100).toFixed(2) : '0.00';
+      const vol = barData && barData.volume !== undefined
+        ? barData.volume.toFixed(barData.volume >= 1 ? 2 : 4)
+        : '';
+      ohlcEl.innerHTML =
+        `<span>O <b class="${dir}">${d.open.toFixed(2)}</b></span>` +
+        `<span>H <b class="${dir}">${d.high.toFixed(2)}</b></span>` +
+        `<span>L <b class="${dir}">${d.low.toFixed(2)}</b></span>` +
+        `<span>C <b class="${dir}">${d.close.toFixed(2)}</b></span>` +
+        (vol ? `<span>V <b>${vol}</b></span>` : '') +
+        `<span>%chg: <b class="${dir}">${chg >= 0 ? '+' : ''}${chg.toFixed(2)}(${chgPct}%)</b></span>`;
+    } else if (d.value !== undefined) {
+      ohlcEl.innerHTML = `<span>Value <b>${d.value.toFixed(2)}</b></span>`;
+    }
+  }
+
+  if (param.time && param.seriesData.size) {
+    const d = param.seriesData.get(mainSeries);
+    if (!d) return;
+    // Find matching candle for volume data
+    const bar = ChartState.candles.find(c => c.time === param.time);
+    renderOhlcBar(d, bar);
+  } else {
+    // Idle state: show latest bar data
+    if (ChartState.candles.length > 0) {
+      const lastBar = ChartState.candles[ChartState.candles.length - 1];
+      renderOhlcBar(lastBar, lastBar);
+    } else {
+      ohlcEl.innerHTML = '';
+    }
   }
 });
 
@@ -3155,6 +4111,7 @@ runOnInit(() => {
     document.querySelectorAll('.dropdown, .tools-menu').forEach(el => {
       el.classList.remove('open');
     });
+    if (typeof closeContextMenu === 'function') closeContextMenu();
   });
 
   // Close dropdowns when scrolling the topbar
@@ -3222,16 +4179,36 @@ runOnInit(() => {
 
   // Wire Navigation Controls
   document.getElementById('zoomIn').addEventListener('click', () => {
-    ChartState.chart.timeScale().zoomToRange(1);
+    const ts = ChartState.chart.timeScale();
+    const range = ts.getVisibleLogicalRange();
+    if (!range) return;
+    const span = range.to - range.from;
+    const shrink = span * 0.2; // zoom in by 20%
+    ts.setVisibleLogicalRange({ from: range.from + shrink, to: range.to - shrink });
   });
   document.getElementById('zoomOut').addEventListener('click', () => {
-    ChartState.chart.timeScale().zoomToRange(-1);
+    const ts = ChartState.chart.timeScale();
+    const range = ts.getVisibleLogicalRange();
+    if (!range) return;
+    const span = range.to - range.from;
+    const grow = span * 0.2; // zoom out by 20%
+    ts.setVisibleLogicalRange({ from: range.from - grow, to: range.to + grow });
   });
   document.getElementById('panLeft').addEventListener('click', () => {
-    ChartState.chart.timeScale().scrollToPosition(-5, true);
+    const ts = ChartState.chart.timeScale();
+    const range = ts.getVisibleLogicalRange();
+    if (!range) return;
+    const span = range.to - range.from;
+    const shift = span * 0.15; // pan by 15% of visible range
+    ts.setVisibleLogicalRange({ from: range.from - shift, to: range.to - shift });
   });
   document.getElementById('panRight').addEventListener('click', () => {
-    ChartState.chart.timeScale().scrollToPosition(5, true);
+    const ts = ChartState.chart.timeScale();
+    const range = ts.getVisibleLogicalRange();
+    if (!range) return;
+    const span = range.to - range.from;
+    const shift = span * 0.15;
+    ts.setVisibleLogicalRange({ from: range.from + shift, to: range.to + shift });
   });
   document.getElementById('resetView').addEventListener('click', () => {
     ChartState.chart.timeScale().fitContent();
@@ -3262,6 +4239,74 @@ runOnInit(() => {
       const toolId = btn.dataset.tool;
       selectActiveDrawingTool(toolId);
     });
+  });
+
+  // Wire crosshair mode toggle button
+  const crosshairBtn = document.getElementById('crosshairBtn');
+  if (crosshairBtn) {
+    crosshairBtn.addEventListener('click', () => {
+      const currentMode = ChartState.crosshairMode || 'normal';
+      let nextMode, lcMode;
+      if (currentMode === 'normal') {
+        nextMode = 'magnet';
+        lcMode = LightweightCharts.CrosshairMode.Magnet;
+        crosshairBtn.classList.add('active');
+      } else {
+        nextMode = 'normal';
+        lcMode = LightweightCharts.CrosshairMode.Normal;
+        crosshairBtn.classList.remove('active');
+      }
+      ChartState.crosshairMode = nextMode;
+      ChartState.chart.applyOptions({ crosshair: { mode: lcMode } });
+    });
+  }
+
+  // Wire keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    // Delete / Backspace — remove selected drawing
+    if (e.key === 'Delete' || e.key === 'Backspace') {
+      if (DrawingManager.selectedDrawing) {
+        e.preventDefault();
+        DrawingManager.deleteSelected();
+      }
+    }
+    // Escape — cancel active tool, return to cursor, deselect drawing
+    if (e.key === 'Escape') {
+      if (ChartState.activeTool !== 'cursor') {
+        selectActiveDrawingTool('cursor');
+      } else if (DrawingManager.selectedDrawing) {
+        DrawingManager.selectedDrawing = null;
+        redrawDrawings();
+      }
+      // Close any open dropdowns/menus
+      document.querySelectorAll('.dropdown, .tools-menu').forEach(el => {
+        el.classList.remove('open');
+      });
+    }
+    // Ctrl+Z — undo last drawing
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+      e.preventDefault();
+      if (ChartState.drawings.length > 0) {
+        const removed = ChartState.drawings.pop();
+        if (!ChartState._undoStack) ChartState._undoStack = [];
+        ChartState._undoStack.push(removed);
+        DrawingManager.selectedDrawing = null;
+        redrawDrawings();
+        emitEvent('drawingDeleted', { id: removed.id });
+      }
+    }
+    // Ctrl+Shift+Z or Ctrl+Y — redo
+    if (((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) ||
+        ((e.ctrlKey || e.metaKey) && e.key === 'y')) {
+      e.preventDefault();
+      if (ChartState._undoStack && ChartState._undoStack.length > 0) {
+        const restored = ChartState._undoStack.pop();
+        ChartState.drawings.push(restored);
+        DrawingManager.selectedDrawing = restored;
+        redrawDrawings();
+        emitEvent('drawingAdded', restored);
+      }
+    }
   });
 });
 

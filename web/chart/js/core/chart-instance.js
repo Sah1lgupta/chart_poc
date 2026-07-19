@@ -196,18 +196,42 @@ function setSeriesType(type) {
 
 chart.subscribeCrosshairMove(param => {
   if (!ChartState.ohlcLegendVisible) { ohlcEl.innerHTML = ''; return; }
-  if (!param.time || !param.seriesData.size) { ohlcEl.innerHTML = ''; return; }
-  const d = param.seriesData.get(mainSeries);
-  if (!d) return;
-  if (d.open !== undefined) {
-    const dir = d.close >= d.open ? 'up' : 'down';
-    ohlcEl.innerHTML =
-      `<span>O <b class="${dir}">${d.open.toFixed(2)}</b></span>` +
-      `<span>H <b class="${dir}">${d.high.toFixed(2)}</b></span>` +
-      `<span>L <b class="${dir}">${d.low.toFixed(2)}</b></span>` +
-      `<span>C <b class="${dir}">${d.close.toFixed(2)}</b></span>`;
-  } else if (d.value !== undefined) {
-    ohlcEl.innerHTML = `<span>Value <b>${d.value.toFixed(2)}</b></span>`;
+
+  // Helper to render OHLC + Volume + %Chg for a given bar object
+  function renderOhlcBar(d, barData) {
+    if (d.open !== undefined) {
+      const dir = d.close >= d.open ? 'up' : 'down';
+      const chg = d.close - d.open;
+      const chgPct = d.open !== 0 ? ((chg / d.open) * 100).toFixed(2) : '0.00';
+      const vol = barData && barData.volume !== undefined
+        ? barData.volume.toFixed(barData.volume >= 1 ? 2 : 4)
+        : '';
+      ohlcEl.innerHTML =
+        `<span>O <b class="${dir}">${d.open.toFixed(2)}</b></span>` +
+        `<span>H <b class="${dir}">${d.high.toFixed(2)}</b></span>` +
+        `<span>L <b class="${dir}">${d.low.toFixed(2)}</b></span>` +
+        `<span>C <b class="${dir}">${d.close.toFixed(2)}</b></span>` +
+        (vol ? `<span>V <b>${vol}</b></span>` : '') +
+        `<span>%chg: <b class="${dir}">${chg >= 0 ? '+' : ''}${chg.toFixed(2)}(${chgPct}%)</b></span>`;
+    } else if (d.value !== undefined) {
+      ohlcEl.innerHTML = `<span>Value <b>${d.value.toFixed(2)}</b></span>`;
+    }
+  }
+
+  if (param.time && param.seriesData.size) {
+    const d = param.seriesData.get(mainSeries);
+    if (!d) return;
+    // Find matching candle for volume data
+    const bar = ChartState.candles.find(c => c.time === param.time);
+    renderOhlcBar(d, bar);
+  } else {
+    // Idle state: show latest bar data
+    if (ChartState.candles.length > 0) {
+      const lastBar = ChartState.candles[ChartState.candles.length - 1];
+      renderOhlcBar(lastBar, lastBar);
+    } else {
+      ohlcEl.innerHTML = '';
+    }
   }
 });
 

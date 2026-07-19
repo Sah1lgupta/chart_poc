@@ -18,11 +18,24 @@ const DrawingManager = {
     overlay.addEventListener('mousedown', this.onMouseDown.bind(this));
     overlay.addEventListener('mousemove', this.onMouseMove.bind(this));
     window.addEventListener('mouseup', this.onMouseUp.bind(this));
+    overlay.addEventListener('contextmenu', this.onContextMenu.bind(this));
     
     // Add touch support for WebView / Mobile
     overlay.addEventListener('touchstart', this.onTouchStart.bind(this));
     overlay.addEventListener('touchmove', this.onTouchMove.bind(this));
     window.addEventListener('touchend', this.onTouchEnd.bind(this));
+
+    const input = document.getElementById('textInputField');
+    if (input) {
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          confirmTextInput();
+        } else if (e.key === 'Escape') {
+          e.stopPropagation();
+          cancelTextInput();
+        }
+      });
+    }
   },
 
   getMousePos(e) {
@@ -47,6 +60,37 @@ const DrawingManager = {
 
     // If a tool is active, place a point
     if (ChartState.activeTool !== 'cursor') {
+      if (ChartState.activeTool === 'path') {
+        this.isDrawingPath = true;
+        ChartState.draftPoints = [{ time, price }];
+        redrawDrawings();
+        return;
+      }
+      if (ChartState.activeTool === 'eraser') {
+        let clickedDrawing = null;
+        for (let j = ChartState.drawings.length - 1; j >= 0; j--) {
+          const d = ChartState.drawings[j];
+          if (d.hidden) continue;
+          const tool = this.tools[d.type];
+          if (tool && tool.isHit(d.points, pos.x, pos.y)) {
+            clickedDrawing = d;
+            break;
+          }
+        }
+        if (clickedDrawing) {
+          const id = clickedDrawing.id;
+          ChartState.drawings = ChartState.drawings.filter(d => d.id !== id);
+          this.selectedDrawing = null;
+          redrawDrawings();
+          emitEvent('drawingDeleted', { id });
+        }
+        document.querySelectorAll('[data-tool]').forEach(b => b.classList.remove('active'));
+        const cursorBtn = document.querySelector('[data-tool="cursor"]');
+        if (cursorBtn) cursorBtn.classList.add('active');
+        ChartState.activeTool = 'cursor';
+        overlay.classList.remove('drawing');
+        return;
+      }
       ChartState.draftPoints.push({ time, price });
       const tool = this.tools[ChartState.activeTool];
       if (tool && ChartState.draftPoints.length >= tool.minPoints) {
@@ -66,14 +110,12 @@ const DrawingManager = {
           favorite: ChartState.favoriteTools.includes(ChartState.activeTool)
         };
 
-        // Text tool requires text input popup
+        // Text tool requires custom modal input (prompt() is blocked in mobile WebViews)
         if (ChartState.activeTool === 'text') {
-          const label = prompt('Label text:', '');
-          if (!label) {
-            ChartState.draftPoints = [];
-            return;
-          }
-          newDrawing.text = label;
+          ChartState.draftPoints = [];
+          this._pendingTextDrawing = newDrawing;
+          showTextInputModal();
+          return;
         }
 
         ChartState.drawings.push(newDrawing);
@@ -132,6 +174,31 @@ const DrawingManager = {
     redrawDrawings();
   },
 
+  onContextMenu(e) {
+    if (ChartState.drawingsHidden) return;
+    const pos = this.getMousePos(e);
+    
+    let hitDrawing = null;
+    for (let j = ChartState.drawings.length - 1; j >= 0; j--) {
+      const d = ChartState.drawings[j];
+      if (d.hidden) continue;
+      const tool = this.tools[d.type];
+      if (tool && tool.isHit(d.points, pos.x, pos.y)) {
+        hitDrawing = d;
+        break;
+      }
+    }
+
+    if (hitDrawing) {
+      e.preventDefault();
+      this.selectedDrawing = hitDrawing;
+      redrawDrawings();
+      showContextMenu(e.clientX, e.clientY, hitDrawing);
+    } else {
+      closeContextMenu();
+    }
+  },
+
   onMouseMove(e) {
     if (ChartState.drawingsHidden) return;
     const pos = this.getMousePos(e);
@@ -141,6 +208,15 @@ const DrawingManager = {
     // Snapped mouse point for drawing updates
     const price = Magnet.getSnappedPrice(tp.time, tp.price);
     const time = tp.time;
+
+    if (this.isDrawingPath) {
+      const last = ChartState.draftPoints[ChartState.draftPoints.length - 1];
+      if (!last || last.time !== time || last.price !== price) {
+        ChartState.draftPoints.push({ time, price });
+        redrawDrawings();
+      }
+      return;
+    }
 
     // Handle active dragging of drawings or drag points
     if (this.draggedDrawing && !ChartState.drawingsLocked && !this.draggedDrawing.locked) {
@@ -216,6 +292,41 @@ const DrawingManager = {
   },
 
   onMouseUp(e) {
+    if (this.isDrawingPath) {
+      this.isDrawingPath = false;
+      if (ChartState.draftPoints.length >= 2) {
+        const id = 'drawing_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        const newDrawing = {
+          id: id,
+          type: 'path',
+          points: [...ChartState.draftPoints],
+          style: {
+            color: '#5b9cf6',
+            lineWidth: 2,
+            fillOpacity: 0.15,
+            fontSize: 12
+          },
+          locked: false,
+          hidden: false,
+          favorite: ChartState.favoriteTools.includes('path')
+        };
+        ChartState.drawings.push(newDrawing);
+        this.selectedDrawing = newDrawing;
+        emitEvent('drawingAdded', newDrawing);
+      }
+      ChartState.draftPoints = [];
+      
+      // Reset active tool back to cursor
+      document.querySelectorAll('[data-tool]').forEach(b => b.classList.remove('active'));
+      const cursorBtn = document.querySelector('[data-tool="cursor"]');
+      if (cursorBtn) cursorBtn.classList.add('active');
+      ChartState.activeTool = 'cursor';
+      overlay.classList.remove('drawing');
+      
+      redrawDrawings();
+      return;
+    }
+
     if (this.draggedDrawing) {
       emitEvent('drawingUpdated', this.draggedDrawing);
       this.draggedDrawing = null;
@@ -253,3 +364,122 @@ const DrawingManager = {
     emitEvent('drawingsCleared', {});
   }
 };
+
+function showTextInputModal() {
+  const modal = document.getElementById('textInputModal');
+  const input = document.getElementById('textInputField');
+  if (modal && input) {
+    input.value = '';
+    modal.classList.add('open');
+    setTimeout(() => input.focus(), 50);
+  }
+}
+
+function confirmTextInput() {
+  const modal = document.getElementById('textInputModal');
+  const input = document.getElementById('textInputField');
+  if (modal && input) {
+    const text = input.value.trim();
+    if (text && DrawingManager._pendingTextDrawing) {
+      const newDrawing = DrawingManager._pendingTextDrawing;
+      newDrawing.text = text;
+      ChartState.drawings.push(newDrawing);
+      DrawingManager.selectedDrawing = newDrawing;
+      
+      // Reset active tool back to cursor
+      document.querySelectorAll('[data-tool]').forEach(b => b.classList.remove('active'));
+      const cursorBtn = document.querySelector('[data-tool="cursor"]');
+      if (cursorBtn) cursorBtn.classList.add('active');
+      ChartState.activeTool = 'cursor';
+      overlay.classList.remove('drawing');
+      
+      redrawDrawings();
+      emitEvent('drawingAdded', newDrawing);
+    }
+    modal.classList.remove('open');
+    DrawingManager._pendingTextDrawing = null;
+  }
+}
+
+function cancelTextInput() {
+  const modal = document.getElementById('textInputModal');
+  if (modal) {
+    modal.classList.remove('open');
+  }
+  DrawingManager._pendingTextDrawing = null;
+  // Reset active tool back to cursor
+  document.querySelectorAll('[data-tool]').forEach(b => b.classList.remove('active'));
+  const cursorBtn = document.querySelector('[data-tool="cursor"]');
+  if (cursorBtn) cursorBtn.classList.add('active');
+  ChartState.activeTool = 'cursor';
+  overlay.classList.remove('drawing');
+  redrawDrawings();
+}
+
+DrawingManager.registerTool('eraser', {
+  minPoints: 9999,
+  draw() {},
+  isHit() { return false; }
+});
+
+function showContextMenu(clientX, clientY, drawing) {
+  const menu = document.getElementById('drawingContextMenu');
+  if (!menu) return;
+
+  const lockBtn = document.getElementById('ctxLockBtn');
+  const hideBtn = document.getElementById('ctxHideBtn');
+
+  if (lockBtn) lockBtn.textContent = drawing.locked ? 'Unlock' : 'Lock';
+  if (hideBtn) hideBtn.textContent = drawing.hidden ? 'Show' : 'Hide';
+
+  menu.style.display = 'block';
+  
+  // Position menu with bounds check so it doesn't overflow screen
+  const menuWidth = 140;
+  const menuHeight = 150;
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  
+  let left = clientX;
+  let top = clientY;
+  
+  if (left + menuWidth > viewportWidth) {
+    left = viewportWidth - menuWidth - 4;
+  }
+  if (top + menuHeight > viewportHeight) {
+    top = viewportHeight - menuHeight - 4;
+  }
+  
+  menu.style.left = left + 'px';
+  menu.style.top = top + 'px';
+}
+
+function closeContextMenu() {
+  const menu = document.getElementById('drawingContextMenu');
+  if (menu) menu.style.display = 'none';
+}
+
+function contextMenuAction(action, arg) {
+  const d = DrawingManager.selectedDrawing;
+  if (!d) {
+    closeContextMenu();
+    return;
+  }
+
+  if (action === 'lock') {
+    d.locked = !d.locked;
+    emitEvent('drawingUpdated', d);
+  } else if (action === 'hide') {
+    d.hidden = !d.hidden;
+    emitEvent('drawingUpdated', d);
+    DrawingManager.selectedDrawing = null;
+  } else if (action === 'delete') {
+    DrawingManager.deleteSelected();
+  } else if (action === 'color') {
+    d.style.color = arg;
+    emitEvent('drawingUpdated', d);
+  }
+
+  redrawDrawings();
+  closeContextMenu();
+}

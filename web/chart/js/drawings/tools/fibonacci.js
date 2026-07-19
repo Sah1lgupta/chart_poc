@@ -27,7 +27,7 @@ DrawingManager.registerTool('fib', {
 
     levels.forEach(lvl => {
       const currentPrice = priceStart + priceDiff * lvl.ratio;
-      const y = mainSeries.priceToCoordinate(currentPrice);
+      const y = ChartState.mainSeries.priceToCoordinate(currentPrice);
       if (y == null) return;
 
       ctx.beginPath();
@@ -88,7 +88,7 @@ DrawingManager.registerTool('fib', {
     const levels = [0.0, 0.236, 0.382, 0.5, 0.618, 0.786, 1.0];
     for (let ratio of levels) {
       const currentPrice = priceStart + priceDiff * ratio;
-      const y = mainSeries.priceToCoordinate(currentPrice);
+      const y = ChartState.mainSeries.priceToCoordinate(currentPrice);
       if (y != null && Math.abs(clickY - y) < 8) {
         return true;
       }

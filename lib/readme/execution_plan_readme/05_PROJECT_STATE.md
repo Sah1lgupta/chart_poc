@@ -43,20 +43,20 @@ Two apps' screenshots analyzed feature-by-feature in `01_FEATURE_AUDIT.md`:
   detection labels, range-shortcut buttons, volume pane.
 
 ## Current Phase Status
-| Phase | Description | Status |
-|---|---|---|
-| 0 | Restructure into package shape | **DONE** — Package created at `packages/chart_engine/`, Dart files extracted (models, bridge codec, controller, events, barrel export), JS modularised (state.js, bridge.js, chart-instance.js), host app wired via path dep, web build passes, zero behavior change. |
-| 1 | Chart type switching (full set) | **NOT STARTED** |
-| 2 | Timeframe/interval selector | Not started |
-| 3 | Nav controls (zoom/pan/reset) | Not started |
-| 4 | Crosshair/OHLC readout/magnet | Not started |
-| 5 | Drawing tools (core + advanced) | Not started |
-| 6 | Drawing management toggles | Not started |
-| 7 | Settings modal | Not started |
-| 8 | Indicators | Not started |
-| 9 | Pattern detection rendering | Not started |
-| 10 | Fullscreen/alerts hook/layout save-load | Not started |
-| 11 | Hardening pass | Not started |
+| Phase | Description | Status | Note |
+|---|---|---|---|
+| 0 | Restructure into package shape | **DONE** | Package structure verified. |
+| 1 | Chart type switching (full set) | **DONE** | Candle, Line, Step Line, Area, Heikin Ashi, Hollow Candle, Bar, Renko. |
+| 2 | Timeframe/interval selector | **DONE** | UI buttons/dropdown configured and connected. |
+| 3 | Nav controls (zoom/pan/reset) | **DONE** | Logical zoom/pan math fixed to avoid non-existent APIs. |
+| 4 | Crosshair/OHLC readout/magnet | **DONE** | Volume, %Change, and idle fallback added. Magnet snapping works. |
+| 5 | Drawing tools (core + advanced) | **DONE** | 18 drawing tools fully implemented including Path, Angle, Flag, pricelabel, etc. |
+| 6 | Drawing management toggles | **DONE** | Undo/redo, lock, hide, favorite rail, and right-click context menu active. |
+| 7 | Settings modal | **DONE** | Style, candle colors, and visibility options configurable. |
+| 8 | Indicators | **DONE** | SMA, EMA, RSI, MACD, Bollinger Bands, VWAP, ATR calculated and rendered. |
+| 9 | Pattern detection rendering | **DONE** | setPatternMarkers bridge functional. |
+| 10 | Fullscreen/alerts hook/layout save-load | **DONE** | Fullscreen, save/load including interval state active. |
+| 11 | Hardening pass | **IN PROGRESS** | Verifying multi-platform compatibility, cleaning up duplicate assets, and running checks. |
 
 *(Update this table every session — mark IN PROGRESS / DONE / BLOCKED, and add a one-line note on
 what specifically was completed or what's blocking, so the next session doesn't have to guess.)*

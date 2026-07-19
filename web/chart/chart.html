@@ -270,6 +270,29 @@
 
     /* ========== FULLSCREEN ========== */
     #root.fullscreen { position: fixed; inset: 0; z-index: 9999; }
+
+    /* ========== TEXT INPUT MODAL ========== */
+    #textInputModal {
+      display: none; position: fixed; inset: 0; z-index: 250;
+      background: rgba(0,0,0,0.6); align-items: center; justify-content: center;
+    }
+    #textInputModal.open { display: flex; }
+    .text-input-box {
+      background: #1e222d; border: 1px solid #2a2e39; border-radius: 8px;
+      padding: 16px; width: 280px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+    .text-input-box label { font-size: 13px; color: #b2b5be; display: block; margin-bottom: 8px; }
+    .text-input-box input {
+      width: 100%; padding: 8px 10px; background: #131722; border: 1px solid #2a2e39;
+      border-radius: 4px; color: #d1d4dc; font-size: 13px; outline: none; margin-bottom: 12px;
+    }
+    .text-input-box input:focus { border-color: #2962ff; }
+    .text-input-box .btn-row { display: flex; gap: 8px; justify-content: flex-end; }
+    .text-input-box .btn-row button {
+      padding: 6px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;
+    }
+    .text-input-box .btn-cancel { background: #363a45; color: #b2b5be; }
+    .text-input-box .btn-confirm { background: #2962ff; color: #fff; }
   </style>
 </head>
 <body>
@@ -382,6 +405,14 @@
         <button class="tools-menu-item" data-tool="shortPos"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M4 18h16v-2H4v2zM4 6v2h16V6H4zm0 7h16v-2H4v2z" opacity="0.6"/><path d="M12 20l4-4H8l4 4z" fill="#ef5350"/></svg> Short Position <span class="star" onclick="event.stopPropagation();toggleFav(this,'shortPos')">☆</span></button>
         <button class="tools-menu-item" data-tool="text"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M5 4v3h5.5v12h3V7H19V4z"/></svg> Text <span class="star" onclick="event.stopPropagation();toggleFav(this,'text')">☆</span></button>
         <button class="tools-menu-item" data-tool="measure"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21L21 3M3 21l3-1M3 21l1-3"/></svg> Measure <span class="star" onclick="event.stopPropagation();toggleFav(this,'measure')">☆</span></button>
+        <button class="tools-menu-item" data-tool="vline"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2v22" stroke="currentColor" stroke-width="2"/></svg> Vertical Line <span class="star" onclick="event.stopPropagation();toggleFav(this,'vline')">☆</span></button>
+        <button class="tools-menu-item" data-tool="extline"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 22L22 2M22 2h-4M22 2v4M2 22h4M2 22v-4"/></svg> Extended Line <span class="star" onclick="event.stopPropagation();toggleFav(this,'extline')">☆</span></button>
+        <button class="tools-menu-item" data-tool="ray"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 22L22 2M22 2h-6M22 2v6"/></svg> Ray <span class="star" onclick="event.stopPropagation();toggleFav(this,'ray')">☆</span></button>
+        <button class="tools-menu-item" data-tool="pricelabel"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 13h-2v-2h2v2zm0-4h-2V7h2v4z"/></svg> Price Label <span class="star" onclick="event.stopPropagation();toggleFav(this,'pricelabel')">☆</span></button>
+        <button class="tools-menu-item" data-tool="flag"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6h-5.6z"/></svg> Flag / Pin <span class="star" onclick="event.stopPropagation();toggleFav(this,'flag')">☆</span></button>
+        <button class="tools-menu-item" data-tool="angle"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 22H2M2 22L16 8"/></svg> Angle <span class="star" onclick="event.stopPropagation();toggleFav(this,'angle')">☆</span></button>
+        <button class="tools-menu-item" data-tool="path"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></svg> Path / Freehand <span class="star" onclick="event.stopPropagation();toggleFav(this,'path')">☆</span></button>
+        <button class="tools-menu-item" data-tool="eraser"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M16.24 7.76l-1.41-1.41L4.85 16.33l1.41 1.41L16.24 7.76zM18.36 5.64c.78-.78.78-2.05 0-2.83-.78-.78-2.05-.78-2.83 0l-1.41 1.41 4.24 4.24 1.41-1.41zM3 21h18v-2H3v2z"/></svg> Eraser <span class="star" onclick="event.stopPropagation();toggleFav(this,'eraser')">☆</span></button>
       </div>
     </div>
 
@@ -426,7 +457,40 @@
       <button class="tool-btn" data-tool="measure" title="Measure">
         <svg viewBox="0 0 24 24"><path d="M3 21L21 3" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="2 3"/></svg>
       </button>
+      <button class="tool-btn" data-tool="vline" title="Vertical Line">
+        <svg viewBox="0 0 24 24"><path d="M12 2v20" stroke="currentColor" stroke-width="2" stroke-dasharray="4 3"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="extline" title="Extended Line">
+        <svg viewBox="0 0 24 24"><path d="M2 22L22 2" stroke="currentColor" stroke-width="2"/><path d="M22 2h-4v2M2 22h4v-2" stroke="currentColor" stroke-width="1.5"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="ray" title="Ray">
+        <svg viewBox="0 0 24 24"><path d="M2 22L22 2" stroke="currentColor" stroke-width="2"/><path d="M22 2h-6M22 2v6" stroke="currentColor" stroke-width="1.5"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="channel" title="Parallel Channel">
+        <svg viewBox="0 0 24 24"><path d="M3 19L21 5M3 21L21 7" stroke="currentColor" stroke-width="2"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="longPos" title="Long Position">
+        <svg viewBox="0 0 24 24"><path d="M12 4l4 4H8l4-4z" fill="#26a69a"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="shortPos" title="Short Position">
+        <svg viewBox="0 0 24 24"><path d="M12 20l4-4H8l4 4z" fill="#ef5350"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="pricelabel" title="Price Label">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 13h-2v-2h2v2zm0-4h-2V7h2v4z" fill="currentColor"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="flag" title="Flag / Pin">
+        <svg viewBox="0 0 24 24"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6h-5.6z" fill="currentColor"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="angle" title="Angle">
+        <svg viewBox="0 0 24 24"><path d="M22 22H2M2 22L16 8" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="path" title="Path / Freehand">
+        <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" fill="currentColor"/></svg>
+      </button>
       <div class="tool-divider"></div>
+      <button class="tool-btn" data-tool="eraser" title="Eraser (delete single)">
+        <svg viewBox="0 0 24 24"><path d="M16.24 7.76l-1.41-1.41L4.85 16.33l1.41 1.41L16.24 7.76zM18.36 5.64c.78-.78.78-2.05 0-2.83-.78-.78-2.05-.78-2.83 0l-1.41 1.41 4.24 4.24 1.41-1.41zM3 21h18v-2H3v2z" fill="currentColor"/></svg>
+      </button>
       <button class="tool-btn" id="clearBtn" title="Clear all drawings">
         <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
       </button>
@@ -539,6 +603,35 @@
   </div>
 </div>
 
+<!-- ===== CONTEXT MENU ===== -->
+<div id="drawingContextMenu" style="display:none; position:fixed; z-index:500; background:#1e222d; border:1px solid #2a2e39; border-radius:6px; box-shadow:0 8px 24px rgba(0,0,0,0.5); padding:4px 0; min-width:120px;">
+  <button class="dropdown-item" id="ctxLockBtn" onclick="contextMenuAction('lock')">Lock</button>
+  <button class="dropdown-item" id="ctxHideBtn" onclick="contextMenuAction('hide')">Hide</button>
+  <div style="height:1px; background:#2a2e39; margin:4px 0;"></div>
+  <div style="padding:4px 16px; font-size:11px; color:#636980; text-transform:uppercase; letter-spacing:0.5px;">Color</div>
+  <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:6px; padding:4px 12px 6px; justify-items:center;">
+    <span style="width:16px; height:16px; border-radius:50%; background:#ef5350; cursor:pointer; display:block;" onclick="contextMenuAction('color', '#ef5350')"></span>
+    <span style="width:16px; height:16px; border-radius:50%; background:#26a69a; cursor:pointer; display:block;" onclick="contextMenuAction('color', '#26a69a')"></span>
+    <span style="width:16px; height:16px; border-radius:50%; background:#2962ff; cursor:pointer; display:block;" onclick="contextMenuAction('color', '#2962ff')"></span>
+    <span style="width:16px; height:16px; border-radius:50%; background:#f0b90b; cursor:pointer; display:block;" onclick="contextMenuAction('color', '#f0b90b')"></span>
+    <span style="width:16px; height:16px; border-radius:50%; background:#ffffff; cursor:pointer; display:block;" onclick="contextMenuAction('color', '#ffffff')"></span>
+  </div>
+  <div style="height:1px; background:#2a2e39; margin:4px 0;"></div>
+  <button class="dropdown-item" style="color:#ef5350;" onclick="contextMenuAction('delete')">Delete</button>
+</div>
+
+<!-- ===== TEXT INPUT MODAL ===== -->
+<div id="textInputModal">
+  <div class="text-input-box">
+    <label>Enter annotation text</label>
+    <input type="text" id="textInputField" placeholder="Type here..." autocomplete="off">
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="cancelTextInput()">Cancel</button>
+      <button class="btn-confirm" onclick="confirmTextInput()">Add</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modular JS: loaded in dependency order -->
 <script src="js/core/state.js"></script>
 
@@ -566,6 +659,13 @@
 <script src="js/drawings/tools/short-position.js"></script>
 <script src="js/drawings/tools/text.js"></script>
 <script src="js/drawings/tools/measure.js"></script>
+<script src="js/drawings/tools/vertical-line.js"></script>
+<script src="js/drawings/tools/extended-line.js"></script>
+<script src="js/drawings/tools/ray.js"></script>
+<script src="js/drawings/tools/price-label.js"></script>
+<script src="js/drawings/tools/flag.js"></script>
+<script src="js/drawings/tools/angle.js"></script>
+<script src="js/drawings/tools/path.js"></script>
 
 <!-- Core modules & UI coordinators -->
 <script src="js/core/bridge.js"></script>

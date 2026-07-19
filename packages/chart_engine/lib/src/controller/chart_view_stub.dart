@@ -17,6 +17,15 @@ class PlatformChartView extends ChartView {
   }) : super.base();
 
   @override
-  State<PlatformChartView> createState() => throw UnimplementedError(
-      'chart_view_stub.dart should never be selected at build time.');
+  State<PlatformChartView> createState() {
+    return _PlatformChartViewStubState();
+  }
+}
+
+class _PlatformChartViewStubState extends State<PlatformChartView> {
+  @override
+  Widget build(BuildContext context) {
+    throw UnimplementedError(
+        'chart_view_stub.dart should never be selected at build time.');
+  }
 }

@@ -210,6 +210,22 @@ window.ChartBridge = {
   applyLayout(layoutJson) {
     try {
       const layout = JSON.parse(layoutJson);
+      if (layout.interval) {
+        ChartState.interval = layout.interval;
+        const tf = layout.interval.label;
+        document.querySelectorAll('#topbar > .tb-btn[data-tf]').forEach(b => {
+          b.classList.toggle('active', b.dataset.tf === tf);
+        });
+        document.querySelectorAll('#tfDropdown .dropdown-item').forEach(b => {
+          b.classList.toggle('active', b.dataset.tf === tf);
+        });
+        emitEvent('timeframeChanged', {
+          tf: tf,
+          interval: layout.interval.value,
+          unit: layout.interval.unit,
+          rangeShortcut: null
+        });
+      }
       if (layout.chartType) {
         this.setChartType(layout.chartType);
       }
