@@ -1,4 +1,6 @@
 // indicator-registry.js — Registry, calculation binder, and rendering manager for technical indicators.
+// FIX B6: RSI gets 70/30 overbought/oversold reference lines
+// FIX B10: Sub-pane layout uses dynamic equal-division formula
 
 const IndicatorRegistry = {
   // Available indicators definition
@@ -8,50 +10,50 @@ const IndicatorRegistry = {
       category: 'main',
       defaultParams: { period: 9 },
       defaultColor: '#f0b90b',
-      calc: calculateSMA
+      calc: calculateSMA,
     },
     ema: {
       displayName: 'Exponential Moving Average',
       category: 'main',
       defaultParams: { period: 9 },
       defaultColor: '#e02424',
-      calc: calculateEMA
+      calc: calculateEMA,
     },
     rsi: {
       displayName: 'Relative Strength Index',
       category: 'sub',
       defaultParams: { period: 14 },
       defaultColor: '#a78bfa',
-      calc: calculateRSI
+      calc: calculateRSI,
     },
     macd: {
       displayName: 'MACD',
       category: 'sub',
       defaultParams: { fastPeriod: 12, slowPeriod: 26, signalPeriod: 9 },
       defaultColor: '#3b82f6',
-      calc: calculateMACD
+      calc: calculateMACD,
     },
     bb: {
       displayName: 'Bollinger Bands',
       category: 'main',
       defaultParams: { period: 20, stdDev: 2 },
       defaultColor: '#10b981',
-      calc: calculateBollingerBands
+      calc: calculateBollingerBands,
     },
     vwap: {
       displayName: 'VWAP',
       category: 'main',
-      defaultParams: {},
+      defaultParams: { sessionResetHour: 0, timezoneOffsetMinutes: 0 },
       defaultColor: '#3b82f6',
-      calc: calculateVWAP
+      calc: calculateVWAP,
     },
     atr: {
       displayName: 'Average True Range',
       category: 'sub',
       defaultParams: { period: 14 },
       defaultColor: '#f43f5e',
-      calc: calculateATR
-    }
+      calc: calculateATR,
+    },
   },
 
   activeInstances: [], // [{ id, indicatorId, params, color, seriesList: [] }]
@@ -71,7 +73,7 @@ const IndicatorRegistry = {
       category: meta.category,
       params: params,
       color: color,
-      seriesList: []
+      seriesList: [],
     };
 
     // Instantiate Lightweight Charts series based on category & indicator type
@@ -86,11 +88,16 @@ const IndicatorRegistry = {
       category: instance.category,
       params: instance.params,
       color: instance.color,
-      favorite: ChartState.favoriteIndicators.includes(instance.indicatorId)
+      favorite: ChartState.favoriteIndicators.includes(instance.indicatorId),
     });
 
     this.recalculateInstance(instance);
-    
+
+    // Rebalance all sub-pane layouts when a new sub indicator is added
+    if (instance.category === 'sub') {
+      this._rebalanceSubPaneLayouts();
+    }
+
     // Update active list UI in manage indicators modal
     if (typeof updateActiveIndicatorsUI === 'function') {
       updateActiveIndicatorsUI();
@@ -100,47 +107,73 @@ const IndicatorRegistry = {
     return instanceId;
   },
 
+  /**
+   * FIX B10: Dynamically rebalances all sub-pane indicator layouts.
+   * Divides the bottom 45% of the chart equally among all sub-pane indicators.
+   * Main chart gets the top 55%, sub-panes share the bottom 45%.
+   */
+  _rebalanceSubPaneLayouts() {
+    const subInstances = this.activeInstances.filter(inst => inst.category === 'sub');
+    const count = subInstances.length;
+    if (count === 0) return;
+
+    // Reserve 55% for main chart, distribute 45% among sub-panes
+    const mainChartBottom = 0.55;
+    const subRegionHeight = (1.0 - mainChartBottom) / count;
+
+    subInstances.forEach((inst, idx) => {
+      const top = mainChartBottom + (idx * subRegionHeight);
+      const bottom = 1.0 - mainChartBottom - ((idx + 1) * subRegionHeight);
+      const priceScaleId = `scale_${inst.id}`;
+
+      ChartState.chart.priceScale(priceScaleId).applyOptions({
+        scaleMargins: {
+          top: Math.min(0.95, top),
+          bottom: Math.max(0.01, bottom),
+        },
+        borderVisible: false,
+      });
+    });
+
+    // Adjust main chart price scale to leave room for sub-panes
+    ChartState.chart.priceScale('right').applyOptions({
+      scaleMargins: {
+        top: 0.05,
+        bottom: 1.0 - mainChartBottom + 0.02,
+      },
+    });
+  },
+
   createSeriesForInstance(instance) {
     const chart = ChartState.chart;
     const cat = instance.category;
-    
-    // Manage priceScale assignments for sub-panes to stack them nicely
+
     let priceScaleId = 'right';
     if (cat === 'sub') {
-      // Create a unique priceScale partition for each oscillator sub-pane
       priceScaleId = `scale_${instance.id}`;
-      
-      // Calculate layout slots (RSI, MACD etc. stack vertically in bottom margins)
-      const count = this.activeInstances.filter(inst => inst.category === 'sub').length;
-      const topMargin = 0.55 + count * 0.12;
-      const bottomMargin = 0.3 - count * 0.12;
-
+      // Layout will be applied by _rebalanceSubPaneLayouts after creation
       chart.priceScale(priceScaleId).applyOptions({
-        scaleMargins: {
-          top: Math.min(0.9, topMargin),
-          bottom: Math.max(0.01, bottomMargin)
-        },
-        borderVisible: false
+        scaleMargins: { top: 0.7, bottom: 0.05 },
+        borderVisible: false,
       });
     }
 
     if (instance.indicatorId === 'macd') {
-      // MACD needs 3 series: MACD Line (blue), Signal Line (orange), Histogram (bar)
       const macdLine = chart.addLineSeries({
         color: instance.color,
         lineWidth: 1.5,
         priceScaleId: priceScaleId,
-        title: 'MACD'
+        title: 'MACD',
       });
       const signalLine = chart.addLineSeries({
         color: '#f97316',
         lineWidth: 1.5,
         priceScaleId: priceScaleId,
-        title: 'Signal'
+        title: 'Signal',
       });
       const histSeries = chart.addHistogramSeries({
         priceScaleId: priceScaleId,
-        title: 'Hist'
+        title: 'Hist',
       });
 
       instance.seriesList.push(
@@ -148,8 +181,8 @@ const IndicatorRegistry = {
         { name: 'signal', series: signalLine },
         { name: 'hist', series: histSeries }
       );
+
     } else if (instance.indicatorId === 'bb') {
-      // Bollinger Bands needs 3 series on main chart: Upper, Middle, Lower
       const upper = chart.addLineSeries({ color: instance.color, lineWidth: 1, lineStyle: 2, title: 'BB Upper' });
       const middle = chart.addLineSeries({ color: '#f59e0b', lineWidth: 1.5, title: 'BB Middle' });
       const lower = chart.addLineSeries({ color: instance.color, lineWidth: 1, lineStyle: 2, title: 'BB Lower' });
@@ -159,13 +192,51 @@ const IndicatorRegistry = {
         { name: 'middle', series: middle },
         { name: 'lower', series: lower }
       );
-    } else {
-      // Standard Line indicators (SMA, EMA, RSI, VWAP, ATR)
+
+    } else if (instance.indicatorId === 'rsi') {
+      // FIX B6: RSI gets the main line + dashed reference lines at 70 and 30
       const lineSeries = chart.addLineSeries({
         color: instance.color,
         lineWidth: 2,
         priceScaleId: priceScaleId,
-        title: instance.displayName
+        title: instance.displayName,
+      });
+
+      // Overbought line (70)
+      const ob = chart.addLineSeries({
+        color: '#ef535066',
+        lineWidth: 1,
+        lineStyle: 2, // dashed
+        priceScaleId: priceScaleId,
+        title: '',
+        lastValueVisible: false,
+        priceLineVisible: false,
+      });
+
+      // Oversold line (30)
+      const os = chart.addLineSeries({
+        color: '#26a69a66',
+        lineWidth: 1,
+        lineStyle: 2,
+        priceScaleId: priceScaleId,
+        title: '',
+        lastValueVisible: false,
+        priceLineVisible: false,
+      });
+
+      instance.seriesList.push(
+        { name: 'main', series: lineSeries },
+        { name: 'ob70', series: ob },
+        { name: 'os30', series: os }
+      );
+
+    } else {
+      // Standard Line indicators (SMA, EMA, VWAP, ATR)
+      const lineSeries = chart.addLineSeries({
+        color: instance.color,
+        lineWidth: 2,
+        priceScaleId: priceScaleId,
+        title: instance.displayName,
       });
       instance.seriesList.push({ name: 'main', series: lineSeries });
     }
@@ -176,7 +247,8 @@ const IndicatorRegistry = {
     if (idx === -1) return;
 
     const instance = this.activeInstances[idx];
-    
+    const wasSub = instance.category === 'sub';
+
     // Remove series from chart
     instance.seriesList.forEach(s => {
       ChartState.chart.removeSeries(s.series);
@@ -184,6 +256,11 @@ const IndicatorRegistry = {
 
     this.activeInstances.splice(idx, 1);
     ChartState.indicators = ChartState.indicators.filter(ind => ind.id !== instanceId);
+
+    // Rebalance remaining sub-panes
+    if (wasSub) {
+      this._rebalanceSubPaneLayouts();
+    }
 
     if (typeof updateActiveIndicatorsUI === 'function') {
       updateActiveIndicatorsUI();
@@ -229,7 +306,7 @@ const IndicatorRegistry = {
     } else if (instance.indicatorId === 'bb') {
       data = meta.calc(ChartState.candles, instance.params.period, instance.params.stdDev);
     } else if (instance.indicatorId === 'vwap') {
-      data = meta.calc(ChartState.candles);
+      data = meta.calc(ChartState.candles, instance.params.sessionResetHour || 0, instance.params.timezoneOffsetMinutes || 0);
     } else {
       data = meta.calc(ChartState.candles, instance.params.period);
     }
@@ -245,8 +322,9 @@ const IndicatorRegistry = {
       histSeries.setData(data.map(d => ({
         time: d.time,
         value: d.histogram,
-        color: d.histogram >= 0 ? 'rgba(38, 166, 154, 0.6)' : 'rgba(239, 83, 80, 0.6)'
+        color: d.histogram >= 0 ? 'rgba(38, 166, 154, 0.6)' : 'rgba(239, 83, 80, 0.6)',
       })));
+
     } else if (instance.indicatorId === 'bb') {
       const upper = instance.seriesList.find(s => s.name === 'upper').series;
       const middle = instance.seriesList.find(s => s.name === 'middle').series;
@@ -255,6 +333,22 @@ const IndicatorRegistry = {
       upper.setData(data.map(d => ({ time: d.time, value: d.upper })));
       middle.setData(data.map(d => ({ time: d.time, value: d.middle })));
       lower.setData(data.map(d => ({ time: d.time, value: d.lower })));
+
+    } else if (instance.indicatorId === 'rsi') {
+      // FIX B6: Set RSI data + reference lines
+      const lineSeries = instance.seriesList.find(s => s.name === 'main').series;
+      lineSeries.setData(data);
+
+      // Generate constant-value reference lines spanning the same time range
+      if (data.length > 0) {
+        const obData = data.map(d => ({ time: d.time, value: 70 }));
+        const osData = data.map(d => ({ time: d.time, value: 30 }));
+        const ob = instance.seriesList.find(s => s.name === 'ob70');
+        const os = instance.seriesList.find(s => s.name === 'os30');
+        if (ob) ob.series.setData(obData);
+        if (os) os.series.setData(osData);
+      }
+
     } else {
       const lineSeries = instance.seriesList.find(s => s.name === 'main').series;
       lineSeries.setData(data);
@@ -271,5 +365,5 @@ const IndicatorRegistry = {
     [...this.activeInstances].forEach(instance => {
       this.removeIndicator(instance.id);
     });
-  }
+  },
 };

@@ -1,5 +1,6 @@
 // bridge.js — The ONLY file that knows about Flutter.
 // Handles: emitEvent (JS→Dart), window.ChartBridge (Dart→JS).
+// All bug fixes: B1 (volume colors), B7 (HA live update), B8 (throttled recalculations)
 
 // ---- Event emission (JS → Dart) ----
 
@@ -21,23 +22,45 @@ function notifyDrawingAdded(d) {
   emitEvent('drawingAdded', d);
 }
 
+// ---- Throttle utility (FIX B8) ----
+let _recalcTimer = null;
+const RECALC_THROTTLE_MS = 200;
+
+function throttledRecalculate() {
+  if (_recalcTimer) return; // Already scheduled
+  _recalcTimer = setTimeout(() => {
+    _recalcTimer = null;
+    IndicatorRegistry.recalculateAll();
+  }, RECALC_THROTTLE_MS);
+}
+
+// ---- Volume color helper (FIX B1) ----
+
+function getVolumeColor(bar) {
+  const t = ChartState.theme;
+  const up = t.volumeUpColor || (t.upColor + '55');
+  const down = t.volumeDownColor || (t.downColor + '55');
+  return bar.close >= bar.open ? up : down;
+}
+
 // ---- Bridge object (Dart → JS) ----
 
 window.ChartBridge = {
   setData(candlesJson) {
     try {
       ChartState.candles = JSON.parse(candlesJson);
-      
+
       // Update main series data
       setSeriesType(ChartState.currentSeriesType);
 
-      // Update volume series data
+      // Update volume series data (FIX B1: theme-aware colors)
       ChartState.volumeSeries.setData(ChartState.candles.map(c => ({
-        time: c.time, value: c.volume || 0,
-        color: c.close >= c.open ? '#26a69a55' : '#ef535055',
+        time: c.time,
+        value: c.volume || 0,
+        color: getVolumeColor(c),
       })));
 
-      // Recalculate indicators
+      // Recalculate indicators (full recalc is fine on setData)
       IndicatorRegistry.recalculateAll();
 
       // Redraw overlays
@@ -59,27 +82,48 @@ window.ChartBridge = {
         ChartState.candles.push(bar);
       }
 
-      // Live bar update
-      if (ChartState.currentSeriesType === 'candle' || ChartState.currentSeriesType === 'bar' || ChartState.currentSeriesType === 'hollowCandle') {
+      // Live bar update (FIX B7: handle all series types correctly)
+      const seriesType = ChartState.currentSeriesType;
+
+      if (seriesType === 'candle' || seriesType === 'bar' || seriesType === 'hollowCandle') {
         ChartState.mainSeries.update(bar);
-      } else if (ChartState.currentSeriesType === 'heikinAshi') {
+
+      } else if (seriesType === 'heikinAshi') {
+        // Recalculate entire HA series for the last few bars
         const ha = Transforms.heikinAshi(ChartState.candles);
-        if (ha.length > 0) ChartState.mainSeries.update(ha[ha.length - 1]);
-      } else if (ChartState.currentSeriesType === 'renko') {
+        if (ha.length > 0) {
+          const lastHA = ha[ha.length - 1];
+          // Check if this is a new candle period or update to current
+          try {
+            ChartState.mainSeries.update(lastHA);
+          } catch (_) {
+            // If update fails (e.g., time already exists differently), do a full setData
+            ChartState.mainSeries.setData(ha);
+          }
+        }
+
+      } else if (seriesType === 'renko') {
+        // Renko must always recalculate from scratch since bricks depend on
+        // cumulative price movement, not individual candles
         const renko = Transforms.renko(ChartState.candles);
-        if (renko.length > 0) ChartState.mainSeries.update(renko[renko.length - 1]);
+        ChartState.mainSeries.setData(renko);
+
       } else {
+        // Line, StepLine, Area — single-value series
         ChartState.mainSeries.update({ time: bar.time, value: bar.close });
       }
 
+      // Volume update (FIX B1: theme-aware colors)
       ChartState.volumeSeries.update({
         time: bar.time,
         value: bar.volume || 0,
-        color: bar.close >= bar.open ? '#26a69a55' : '#ef535055'
+        color: getVolumeColor(bar),
       });
 
-      // Live indicator updates
-      IndicatorRegistry.recalculateAll();
+      // Throttled indicator recalculation (FIX B8)
+      throttledRecalculate();
+
+      // Throttled drawing redraw (handled by redrawDrawings' internal throttle)
       redrawDrawings();
     } catch (err) {
       reportToFlutter('jsError', { message: 'addOrUpdateBar failed: ' + err.message });
@@ -98,41 +142,7 @@ window.ChartBridge = {
   setTheme(themeJson) {
     try {
       const theme = JSON.parse(themeJson);
-      Object.assign(ChartState.theme, theme);
-
-      document.body.style.backgroundColor = ChartState.theme.background;
-
-      ChartState.chart.applyOptions({
-        layout: {
-          background: { color: ChartState.theme.background },
-          textColor: ChartState.theme.text
-        },
-        grid: {
-          vertLines: { color: ChartState.theme.gridLineColor },
-          horzLines: { color: ChartState.theme.gridLineColor }
-        },
-        crosshair: {
-          vertLine: { color: ChartState.theme.crosshairColor },
-          horzLine: { color: ChartState.theme.crosshairColor }
-        }
-      });
-
-      // Apply to UI config dialogs color swatches immediately
-      const colorBg = document.getElementById('colorBg');
-      if (colorBg) colorBg.value = ChartState.theme.background;
-      const colorText = document.getElementById('colorText');
-      if (colorText) colorText.value = ChartState.theme.text;
-      const colorUp = document.getElementById('colorUp');
-      if (colorUp) colorUp.value = ChartState.theme.upColor;
-      const colorDown = document.getElementById('colorDown');
-      if (colorDown) colorDown.value = ChartState.theme.downColor;
-      const colorGrid = document.getElementById('colorGrid');
-      if (colorGrid) colorGrid.value = ChartState.theme.gridLineColor;
-      const colorCrosshair = document.getElementById('colorCrosshair');
-      if (colorCrosshair) colorCrosshair.value = ChartState.theme.crosshairColor;
-
-      setSeriesType(ChartState.currentSeriesType);
-      redrawDrawings();
+      ThemeManager.apply(theme);
     } catch (err) {
       reportToFlutter('jsError', { message: 'setTheme failed: ' + err.message });
     }
@@ -140,7 +150,7 @@ window.ChartBridge = {
 
   setChartType(type) {
     setSeriesType(type);
-    
+
     // UI update
     const activeCard = document.querySelector(`#settingsChartType .chart-type-card[data-ct="${type}"]`);
     if (activeCard) {
@@ -152,7 +162,7 @@ window.ChartBridge = {
   setAvailableIntervals(intervalsJson) {
     try {
       const intervals = JSON.parse(intervalsJson);
-      // We can use these to render buttons dynamically if needed
+      // Future: dynamically render toolbar buttons from this list
     } catch (err) {
       reportToFlutter('jsError', { message: 'setAvailableIntervals failed: ' + err.message });
     }
@@ -196,10 +206,10 @@ window.ChartBridge = {
           ohlcLegendVisible: ChartState.ohlcLegendVisible,
           volumePaneVisible: ChartState.volumePaneVisible,
           lastPriceLineVisible: ChartState.lastPriceLineVisible,
-          crosshairLabelVisible: ChartState.crosshairLabelVisible
-        }
+          crosshairLabelVisible: ChartState.crosshairLabelVisible,
+        },
       };
-      
+
       emitEvent('layoutSnapshot', layout);
       return JSON.stringify(layout);
     } catch (err) {
@@ -223,7 +233,7 @@ window.ChartBridge = {
           tf: tf,
           interval: layout.interval.value,
           unit: layout.interval.unit,
-          rangeShortcut: null
+          rangeShortcut: null,
         });
       }
       if (layout.chartType) {
@@ -240,39 +250,24 @@ window.ChartBridge = {
       }
       if (layout.toggles) {
         const t = layout.toggles;
-        if (t.drawingToolbarEnabled !== undefined) {
-          const btn = document.getElementById('toggleToolbar');
-          if (btn && btn.classList.contains('on') !== t.drawingToolbarEnabled) {
-            toggleDrawingToolbar();
+        const togglePairs = [
+          ['toggleToolbar', 'drawingToolbarEnabled', toggleDrawingToolbar],
+          ['toggleMagnet', 'magnetEnabled', toggleMagnetMode],
+          ['toggleHide', 'drawingsHidden', toggleHideDrawings],
+          ['toggleLock', 'drawingsLocked', toggleLockDrawings],
+          ['toggleFavs', 'showFavoritesOnly', toggleShowFavourites],
+        ];
+        togglePairs.forEach(([btnId, key, fn]) => {
+          if (t[key] !== undefined) {
+            const btn = document.getElementById(btnId);
+            if (btn && btn.classList.contains('on') !== t[key]) {
+              fn();
+            }
           }
-        }
-        if (t.magnetEnabled !== undefined) {
-          const btn = document.getElementById('toggleMagnet');
-          if (btn && btn.classList.contains('on') !== t.magnetEnabled) {
-            toggleMagnetMode();
-          }
-        }
-        if (t.drawingsHidden !== undefined) {
-          const btn = document.getElementById('toggleHide');
-          if (btn && btn.classList.contains('on') !== t.drawingsHidden) {
-            toggleHideDrawings();
-          }
-        }
-        if (t.drawingsLocked !== undefined) {
-          const btn = document.getElementById('toggleLock');
-          if (btn && btn.classList.contains('on') !== t.drawingsLocked) {
-            toggleLockDrawings();
-          }
-        }
-        if (t.showFavoritesOnly !== undefined) {
-          const btn = document.getElementById('toggleFavs');
-          if (btn && btn.classList.contains('on') !== t.showFavoritesOnly) {
-            toggleShowFavourites();
-          }
-        }
+        });
       }
     } catch (err) {
       reportToFlutter('jsError', { message: 'applyLayout failed: ' + err.message });
     }
-  }
+  },
 };

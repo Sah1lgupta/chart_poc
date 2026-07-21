@@ -77,8 +77,6 @@ class _MobileChartController implements ChartController {
   final WebViewController _controller;
 
   void _run(String js) {
-    // Batch-friendly: for high-frequency ticks, call addOrUpdateBar at most
-    // every 100-250ms from your BLoC, not per raw tick.
     _controller.runJavaScript(js);
   }
 
@@ -98,13 +96,8 @@ class _MobileChartController implements ChartController {
   }
 
   @override
-  Future<void> setTheme({
-    required String background,
-    required String text,
-    ChartTheme? theme,
-  }) async {
-    final t = theme ?? ChartTheme(background: background, text: text);
-    _run("window.ChartBridge.setTheme('${escapeForJs(jsonEncodeTheme(t))}');");
+  Future<void> setTheme(ChartTheme theme) async {
+    _run("window.ChartBridge.setTheme('${escapeForJs(jsonEncodeTheme(theme))}');");
   }
 
   @override

@@ -115,13 +115,8 @@ class _WebChartController implements ChartController {
   }
 
   @override
-  Future<void> setTheme({
-    required String background,
-    required String text,
-    ChartTheme? theme,
-  }) async {
-    final t = theme ?? ChartTheme(background: background, text: text);
-    _call1('setTheme', jsonEncodeTheme(t));
+  Future<void> setTheme(ChartTheme theme) async {
+    _call1('setTheme', jsonEncodeTheme(theme));
   }
 
   @override

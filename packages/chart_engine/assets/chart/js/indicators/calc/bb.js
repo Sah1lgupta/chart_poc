@@ -22,7 +22,7 @@ function calculateBollingerBands(candles, period, stdDevMultiplier) {
       const diff = candles[i - j].close - middle;
       varianceSum += diff * diff;
     }
-    const stdDev = Math.sqrt(varianceSum / period);
+    const stdDev = Math.sqrt(varianceSum / (period - 1));
 
     bbData.push({
       time: candles[i].time,
